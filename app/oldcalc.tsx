@@ -13,14 +13,8 @@ import {
     Typography,
     Grid,
     CircularProgress,
-    Tooltip,
 } from '@mui/material';
 import useMarksStore from '../stores/useMarksStore';
-
-import { useRouter } from 'next/navigation';
-import { auth, db } from '../firebaseConfig'; // Import Firebase Auth and Firestore
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
 
 const mathSubjects = ['Mathematics', 'Mathematical Literacy'];
 const homeLanguages = ['English HL', 'Afrikaans HL', 'isiZulu HL'];
@@ -54,10 +48,7 @@ const CalculatorPage: React.FC = () => {
         nbtScores,
         apsScore,
         setMarksData,
-    } = useMarksStore();
-
-    const router = useRouter();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+      } = useMarksStore();
     // State variables for subjects and marks
     const [subject1, setSubject1] = useState('');
     const [subject2, setSubject2] = useState('');
@@ -113,15 +104,6 @@ const CalculatorPage: React.FC = () => {
         );
     }, [subject4, subject5, subject6]);
 
-    useEffect(() => {
-        // Check user authentication status
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setIsAuthenticated(!!user);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
     const getPointsForMark = (mark: number): number => {
         if (mark >= 80) return 7;
         else if (mark >= 70) return 6;
@@ -167,18 +149,36 @@ const CalculatorPage: React.FC = () => {
         setApsScore(totalAPS);
 
         // Optionally, save marks and subjects to localStorage
-        //saveDataToLocalStorage();
+        saveDataToLocalStorage();
 
         setMarksData({
             apsScore: totalAPS,
             subjects: {
-                subject1,
-                subject2,
-                subject3,
-                subject4,
-                subject5,
-                subject6,
+              subject1,
+              subject2,
+              subject3,
+              subject4,
+              subject5,
+              subject6,
             },
+            marks: {
+              mark1,
+              mark2,
+              mark3,
+              mark4,
+              mark5,
+              mark6,
+            },
+            nbtScores: {
+              nbtAL,
+              nbtQL,
+              nbtMAT,
+            },
+          });
+    };
+
+    const saveDataToLocalStorage = () => {
+        const data = {
             marks: {
                 mark1,
                 mark2,
@@ -187,59 +187,21 @@ const CalculatorPage: React.FC = () => {
                 mark5,
                 mark6,
             },
+            subjects: {
+                subject1,
+                subject2,
+                subject3,
+                subject4,
+                subject5,
+                subject6,
+            },
             nbtScores: {
                 nbtAL,
                 nbtQL,
                 nbtMAT,
             },
-        });
-    };
-
-
-    const handleSaveToProfile = async () => {
-        if (!isAuthenticated) {
-            router.push('/profile'); // Redirect to sign-in/sign-up page
-            return;
-        }
-
-        try {
-            const user = auth.currentUser;
-            if (!user) throw new Error('User not authenticated');
-
-            const profileData = {
-                apsScore: apsScoreLoc,
-                subjects: {
-                    subject1,
-                    subject2,
-                    subject3,
-                    subject4,
-                    subject5,
-                    subject6,
-                },
-                marks: {
-                    mark1,
-                    mark2,
-                    mark3,
-                    mark4,
-                    mark5,
-                    mark6,
-                },
-                nbtScores: {
-                    nbtAL,
-                    nbtQL,
-                    nbtMAT,
-                },
-                savedAt: new Date(),
-            };
-
-            await setDoc(doc(db, 'profiles', user.uid), profileData);
-
-            setErrorMessage('Profile saved successfully!');
-            setErrorOpen(true);
-        } catch (error: any) {
-            setErrorMessage(error.message || 'Failed to save profile.');
-            setErrorOpen(true);
-        }
+        };
+        localStorage.setItem('calculatorData', JSON.stringify(data));
     };
 
     return (
@@ -247,10 +209,10 @@ const CalculatorPage: React.FC = () => {
             <Typography variant="h6" gutterBottom>
                 Subject Selection
             </Typography>
-
+    
             <Grid container spacing={2}>
                 {/* Subject 1 */}
-                <Grid item xs={8} sm={8}>
+                <Grid item xs={12} sm={6}>
                     <Select
                         fullWidth
                         value={subject1}
@@ -267,7 +229,7 @@ const CalculatorPage: React.FC = () => {
                         ))}
                     </Select>
                 </Grid>
-                <Grid item xs={4} sm={4}>
+                <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
                         label="Enter %"
@@ -276,9 +238,9 @@ const CalculatorPage: React.FC = () => {
                         type="number"
                     />
                 </Grid>
-
+    
                 {/* Subject 2 */}
-                <Grid item xs={8} sm={8}>
+                <Grid item xs={12} sm={6}>
                     <Select
                         fullWidth
                         value={subject2}
@@ -295,7 +257,7 @@ const CalculatorPage: React.FC = () => {
                         ))}
                     </Select>
                 </Grid>
-                <Grid item xs={4} sm={4}>
+                <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
                         label="Enter %"
@@ -304,9 +266,9 @@ const CalculatorPage: React.FC = () => {
                         type="number"
                     />
                 </Grid>
-
+    
                 {/* Subject 3 */}
-                <Grid item xs={8} sm={8}>
+                <Grid item xs={12} sm={6}>
                     <Select
                         fullWidth
                         value={subject3}
@@ -323,7 +285,7 @@ const CalculatorPage: React.FC = () => {
                         ))}
                     </Select>
                 </Grid>
-                <Grid item xs={4} sm={4}>
+                <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
                         label="Enter %"
@@ -332,9 +294,9 @@ const CalculatorPage: React.FC = () => {
                         type="number"
                     />
                 </Grid>
-
+    
                 {/* Subject 4 */}
-                <Grid item xs={8} sm={8}>
+                <Grid item xs={12} sm={6}>
                     <Select
                         fullWidth
                         value={subject4}
@@ -351,7 +313,7 @@ const CalculatorPage: React.FC = () => {
                         ))}
                     </Select>
                 </Grid>
-                <Grid item xs={4} sm={4}>
+                <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
                         label="Enter %"
@@ -360,9 +322,9 @@ const CalculatorPage: React.FC = () => {
                         type="number"
                     />
                 </Grid>
-
+    
                 {/* Subject 5 */}
-                <Grid item xs={8} sm={8}>
+                <Grid item xs={12} sm={6}>
                     <Select
                         fullWidth
                         value={subject5}
@@ -379,7 +341,7 @@ const CalculatorPage: React.FC = () => {
                         ))}
                     </Select>
                 </Grid>
-                <Grid item xs={4} sm={4}>
+                <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
                         label="Enter %"
@@ -388,9 +350,9 @@ const CalculatorPage: React.FC = () => {
                         type="number"
                     />
                 </Grid>
-
+    
                 {/* Subject 6 */}
-                <Grid item xs={8} sm={8}>
+                <Grid item xs={12} sm={6}>
                     <Select
                         fullWidth
                         value={subject6}
@@ -407,7 +369,7 @@ const CalculatorPage: React.FC = () => {
                         ))}
                     </Select>
                 </Grid>
-                <Grid item xs={4} sm={4}>
+                <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
                         label="Enter %"
@@ -417,63 +379,50 @@ const CalculatorPage: React.FC = () => {
                     />
                 </Grid>
             </Grid>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={calculateAndDisplayAPS}
-                    style={{ marginTop: '16px' }}
-                >
-                    Calculate APS
-                </Button>
-
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSaveToProfile}
-                    style={{ marginTop: '16px' }}
-                >
-                    Save to Profile
-                </Button>
-            </div>
-
+    
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={calculateAndDisplayAPS}
+                style={{ marginTop: '16px' }}
+            >
+                Calculate APS
+            </Button>
+    
             {/* NBT Inputs */}
             <Typography variant="h6" gutterBottom style={{ marginTop: '24px' }}>
                 NBT Scores
             </Typography>
             <Grid container spacing={2}>
-                <Grid item xs={4} sm={4}>
-                    <Tooltip title="Academic Literacy">
+                <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
-                        label="NBT (AL)"
+                        label="NBT Academic Literacy (AL)"
                         value={nbtAL}
                         onChange={(e) => setNbtAL(e.target.value)}
                         type="number"
-                    /></Tooltip>
+                    />
                 </Grid>
-                <Grid item xs={4} sm={4}>
-                    <Tooltip title="Quantitative Literacy">
+                <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
-                        label="NBT (QL)"
+                        label="NBT Quantitative Literacy (QL)"
                         value={nbtQL}
                         onChange={(e) => setNbtQL(e.target.value)}
                         type="number"
-                    /></Tooltip>
+                    />
                 </Grid>
-                <Grid item xs={4} sm={4}>
-                    <Tooltip title="Mathematics">
+                <Grid item xs={12} sm={6}>
                     <TextField
                         fullWidth
-                        label="NBT (MAT)"
+                        label="NBT Mathematics (MAT)"
                         value={nbtMAT}
                         onChange={(e) => setNbtMAT(e.target.value)}
                         type="number"
-                    /></Tooltip>
+                    />
                 </Grid>
             </Grid>
-
+    
             {/* Circular Progress Bar */}
             <div style={{ marginTop: '24px', textAlign: 'center' }}>
                 <CircularProgress
@@ -497,10 +446,10 @@ const CalculatorPage: React.FC = () => {
                     {errorMessage}
                 </Alert>
             </Snackbar>
-
+    
         </div>
     );
-
+    
 };
 
 export default CalculatorPage;

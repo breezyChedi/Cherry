@@ -1,7 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-
 import React, { useState } from 'react';
 import {
   Tabs,
@@ -12,43 +10,20 @@ import {
   Box,
   Select,
   MenuItem,
-  Snackbar,
-  Alert,
 } from '@mui/material';
 import Flag from 'react-world-flags';
-import { auth, db } from '../firebaseConfig'; // Import Firebase Auth and Firestore
+import { auth } from '../firebaseConfig'; // Import Firebase Auth
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { Router } from 'next/router';
 
 const ProfilePage: React.FC = () => {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState(0);
-
-  // Snackbar state
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error';
-  }>({ open: false, message: '', severity: 'success' });
 
   // Handle tab switch
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
-  };
-
-  // Close Snackbar
-  const handleCloseSnackbar = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbar({ ...snackbar, open: false });
   };
 
   // Gender options
@@ -68,92 +43,33 @@ const ProfilePage: React.FC = () => {
   ];
 
   // Sign Up form with gender and nationality dropdowns
-  const SignUpForm: React.FC = () => {
-    // Form states
-    const [name, setName] = useState('');
-    const [surname, setSurname] = useState('');
-    const [highSchool, setHighSchool] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [gender, setGender] = useState('');
-    const [nationality, setNationality] = useState('South Africa');
+  const SignUpForm = () => {
     const [email, setEmail] = useState('');
     const [confirmEmail, setConfirmEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [gender, setGender] = useState('');
+    const [nationality, setNationality] = useState('South Africa');
+    const [error, setError] = useState('');
 
     const handleSignUp = async (e: React.FormEvent) => {
       e.preventDefault();
 
       // Validation checks
       if (email !== confirmEmail) {
-        setSnackbar({
-          open: true,
-          message: 'Emails do not match.',
-          severity: 'error',
-        });
+        setError('Emails do not match.');
         return;
       }
       if (password !== confirmPassword) {
-        setSnackbar({
-          open: true,
-          message: 'Passwords do not match.',
-          severity: 'error',
-        });
+        setError('Passwords do not match.');
         return;
       }
 
-      // Additional validation can be added here (e.g., email format, password strength)
-
       try {
-        // Create user with Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        const user = userCredential.user;
-
-        // Save additional user data to Firestore
-        await setDoc(doc(db, 'users', user.uid), {
-          name,
-          surname,
-          highSchool,
-          phoneNumber,
-          gender,
-          nationality,
-          email,
-          createdAt: new Date(),
-        });
-        
-
-        router.push('/profile/profileDetails');
-
-        // Show success Snackbar
-        setSnackbar({
-          open: true,
-          message: 'Sign-up successful!',
-          severity: 'success',
-        });
-
-        // Optionally, reset the form
-        setName('');
-        setSurname('');
-        setHighSchool('');
-        setPhoneNumber('');
-        setGender('');
-        setNationality('South Africa');
-        setEmail('');
-        setConfirmEmail('');
-        setPassword('');
-        setConfirmPassword('');
-
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert('Sign-up successful!');
       } catch (err: any) {
-        // Show error Snackbar
-        setSnackbar({
-          open: true,
-          message: err.message || 'Sign-up failed.',
-          severity: 'error',
-        });
+        setError(err.message);
       }
     };
 
@@ -161,21 +77,15 @@ const ProfilePage: React.FC = () => {
       <Box component="form" onSubmit={handleSignUp} sx={{ mt: 3 }}>
         <TextField
           fullWidth
-          label="Name"
+          label="Name*"
           margin="normal"
           variant="standard"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
         />
         <TextField
           fullWidth
-          label="Surname"
+          label="Surname*"
           margin="normal"
           variant="standard"
-          value={surname}
-          onChange={(e) => setSurname(e.target.value)}
-          required
         />
 
         {/* Gender dropdown */}
@@ -186,10 +96,9 @@ const ProfilePage: React.FC = () => {
           displayEmpty
           variant="standard"
           sx={{ mt: 2 }}
-          required
         >
           <MenuItem value="" disabled>
-            Select Gender
+            Male or Female*
           </MenuItem>
           {genderOptions.map((option) => (
             <MenuItem key={option} value={option}>
@@ -200,21 +109,15 @@ const ProfilePage: React.FC = () => {
 
         <TextField
           fullWidth
-          label="High School"
+          label="High School*"
           margin="normal"
           variant="standard"
-          value={highSchool}
-          onChange={(e) => setHighSchool(e.target.value)}
-          required
         />
         <TextField
           fullWidth
-          label="Phone Number"
+          label="Phone Number*"
           margin="normal"
           variant="standard"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-          required
         />
 
         {/* Nationality dropdown */}
@@ -225,17 +128,10 @@ const ProfilePage: React.FC = () => {
           displayEmpty
           variant="standard"
           sx={{ mt: 2 }}
-          required
         >
-          <MenuItem value="" disabled>
-            Select Nationality
-          </MenuItem>
           {countries.map((country) => (
             <MenuItem key={country.code} value={country.name}>
-              <Flag
-                code={country.code.toLowerCase()}
-                style={{ width: 20, marginRight: 8 }}
-              />
+              <Flag code={country.code.toLowerCase()} style={{ width: 20, marginRight: 8 }} />
               {country.name}
             </MenuItem>
           ))}
@@ -243,51 +139,51 @@ const ProfilePage: React.FC = () => {
 
         <TextField
           fullWidth
-          label="Email Address"
+          label="Email Address*"
           margin="normal"
           variant="standard"
-          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required
         />
         <TextField
           fullWidth
-          label="Confirm Email Address"
+          label="Confirm Email Address*"
           margin="normal"
           variant="standard"
-          type="email"
           value={confirmEmail}
           onChange={(e) => setConfirmEmail(e.target.value)}
-          required
         />
         <TextField
           fullWidth
-          label="Password"
+          label="Password*"
           type="password"
           margin="normal"
           variant="standard"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required
         />
         <TextField
           fullWidth
-          label="Confirm Password"
+          label="Confirm Password*"
           type="password"
           margin="normal"
           variant="standard"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          required
         />
+
+        {error && (
+          <Typography color="error" sx={{ mt: 2 }}>
+            {error}
+          </Typography>
+        )}
 
         <Button
           type="submit"
           variant="contained"
           color="primary"
           fullWidth
-          sx={{ mt: 2, bgcolor: 'purple', '&:hover': { bgcolor: 'darkpurple' } }}
+          sx={{ mt: 2, bgcolor: 'purple' }}
         >
           Sign up
         </Button>
@@ -296,34 +192,18 @@ const ProfilePage: React.FC = () => {
   };
 
   // Sign In form
-  const SignInForm: React.FC = () => {
+  const SignInForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
     const handleSignIn = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        // Show success Snackbar
-        setSnackbar({
-          open: true,
-          message: 'Sign-in successful!',
-          severity: 'success',
-        });
-
-        // Optionally, reset the form
-        setEmail('');
-        setPassword('');
-
-        router.push('/profile/profileDetails');
-
+        alert('Sign-in successful!');
       } catch (err: any) {
-        // Show error Snackbar
-        setSnackbar({
-          open: true,
-          message: err.message || 'Sign-in failed.',
-          severity: 'error',
-        });
+        setError(err.message);
       }
     };
 
@@ -331,31 +211,34 @@ const ProfilePage: React.FC = () => {
       <Box component="form" onSubmit={handleSignIn} sx={{ mt: 3 }}>
         <TextField
           fullWidth
-          label="Email Address"
+          label="Email Address*"
           margin="normal"
           variant="standard"
-          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required
         />
         <TextField
           fullWidth
-          label="Password"
+          label="Password*"
           type="password"
           margin="normal"
           variant="standard"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required
         />
+
+        {error && (
+          <Typography color="error" sx={{ mt: 2 }}>
+            {error}
+          </Typography>
+        )}
 
         <Button
           type="submit"
           variant="contained"
           color="primary"
           fullWidth
-          sx={{ mt: 2, bgcolor: 'purple', '&:hover': { bgcolor: 'darkpurple' } }}
+          sx={{ mt: 2, bgcolor: 'purple' }}
         >
           Sign in
         </Button>
@@ -364,7 +247,6 @@ const ProfilePage: React.FC = () => {
           color="primary"
           fullWidth
           sx={{ mt: 1 }}
-          // Add your forgot password handler here
         >
           Forgot Password
         </Button>
@@ -391,10 +273,7 @@ const ProfilePage: React.FC = () => {
           label="Sign up"
           sx={{
             color: activeTab === 0 ? 'white' : 'purple',
-            bgcolor:
-              activeTab === 0
-                ? 'rgba(128, 0, 128, 0.6)'
-                : 'rgba(128, 0, 128, 0.2)',
+            bgcolor: activeTab === 0 ? 'rgba(128, 0, 128, 0.6)' : 'rgba(128, 0, 128, 0.2)',
             borderRadius: '8px 8px 0 0',
           }}
         />
@@ -402,10 +281,7 @@ const ProfilePage: React.FC = () => {
           label="Sign in"
           sx={{
             color: activeTab === 1 ? 'white' : 'purple',
-            bgcolor:
-              activeTab === 1
-                ? 'rgba(128, 0, 128, 0.6)'
-                : 'rgba(128, 0, 128, 0.2)',
+            bgcolor: activeTab === 1 ? 'rgba(128, 0, 128, 0.6)' : 'rgba(128, 0, 128, 0.2)',
             borderRadius: '8px 8px 0 0',
           }}
         />
@@ -413,32 +289,18 @@ const ProfilePage: React.FC = () => {
 
       {/* Render the forms conditionally based on the active tab */}
       {activeTab === 0 ? <SignUpForm /> : <SignInForm />}
-
-      {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-
       <Box
-        component="footer"
-        sx={{
-          height: '64px', // Same height as your navbar
-          backgroundColor: 'white',
-        }}
-      ></Box>
+    component="footer"
+    sx={{
+      height: '64px', // Same height as your navbar
+      backgroundColor: 'white',
+    }}
+  >
+  </Box>
     </Box>
   );
 };
 
 export default ProfilePage;
+
+

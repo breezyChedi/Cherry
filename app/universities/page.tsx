@@ -54,7 +54,7 @@ const UniversitiesPage = async () => {
       // Render the page with the fetched data
       return (
         <div>
-          <h1>Universities</h1>
+          <h1>Universities and Degrees</h1>
           <UniversitiesList universities={universities} />
         </div>
       );

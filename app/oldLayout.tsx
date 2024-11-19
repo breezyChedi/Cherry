@@ -1,9 +1,10 @@
-'use client';
+import type { Metadata } from "next";
+import localFont from "next/font/local";
+// app/layout.tsx
 
-import React, { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation'; // Correct imports
-import { onAuthStateChanged } from 'firebase/auth'; // Firebase Auth
-import { auth } from './firebaseConfig'; // Ensure this points to your Firebase config file
+'use client';
+import dynamic from 'next/dynamic';
+import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
   AppBar,
@@ -14,55 +15,57 @@ import {
   BottomNavigationAction,
   Paper,
 } from '@mui/material';
-import { purple } from '@mui/material/colors';
+import { usePathname, useRouter } from 'next/navigation';
+import MenuIcon from './icons/prof.svg'; 
 
-// Icons
-import MenuIcon from './icons/prof.svg';
+// Import your custom SVG icons
+// app/layout.tsx
+
 import CalculatorIcon from './icons/aps.svg';
 import Page2Icon from './icons/book.svg';
 import Page3Icon from './icons/plant.svg';
 import Cherry from './icons/cherry.svg';
+import { purple } from '@mui/material/colors';
 
-// Create MUI theme
+
+//import Page2Icon from './icons/book.svg';
+//import Page3Icon from './icons/plant.svg';
+
 const theme = createTheme({
   palette: {
     primary: {
-      main: purple[700],
+      main: purple[700], // You can choose any shade from purple[50] to purple[900]
     },
   },
 });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
-  const [value, setValue] = useState(pathname);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [value, setValue] = React.useState(pathname);
 
-  // Check user authentication status
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user); // Set to true if a user is logged in
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
+  React.useEffect(() => {
     setValue(pathname);
   }, [pathname]);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleChange = (
+    event: React.SyntheticEvent,
+    newValue: string
+  ) => {
     setValue(newValue);
     router.push(newValue);
   };
 
   const handleProfileClick = () => {
-    if (isAuthenticated) {
-      router.push('/profile/profileDetails'); // Redirect to Profile Details if logged in
-    } else {
-      router.push('/profile'); // Redirect to Profile Sign-In/Sign-Up if not logged in
-    }
+    router.push('/profile'); // Redirect to profile creation page
   };
+  
 
   return (
     <html lang="en">
@@ -71,6 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <ThemeProvider theme={theme}>
+          {/* Render the current page's content */}
           <AppBar position="fixed">
             <Toolbar>
               {/* Profile Icon on the Left */}
@@ -80,6 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 aria-label="profile"
                 onClick={handleProfileClick}
               >
+                {/* Replace with your Profile Icon */}
                 <MenuIcon />
               </IconButton>
 
@@ -90,21 +95,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 sx={{
                   flexGrow: 1,
                   textAlign: 'center',
-                  marginRight: '56px',
+                  marginRight: '56px', // Adjust to offset the profile icon width
                 }}
               >
                 Cherry Web App
               </Typography>
-
-              {/* Right-side Icon */}
-              <IconButton edge="end" color="inherit" aria-label="cherry">
-                <Cherry />
+              <IconButton
+                edge="end"
+                color="inherit"
+                aria-label="profile"
+                onClick={handleProfileClick}
+              >
+                {/* Replace with your Profile Icon */}
+                <Cherry/>
               </IconButton>
             </Toolbar>
           </AppBar>
 
           {/* Adjust content to account for fixed header */}
-          <div style={{ marginTop: '64px' }}>{children}</div>
+          <div style={{ marginTop: '64px' }}>
+            {/* Render the current page's content */}
+            {children}
+          </div>
+          
 
           {/* Bottom Navigation Menu */}
           <Paper
@@ -115,7 +128,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <BottomNavigationAction
                 label="Calculator"
                 value="/calculator"
-                icon={<CalculatorIcon style={{ width: 24, height: 24 }} />}
+                icon={<CalculatorIcon style={{ width: 24, height: 24}} />}
               />
               <BottomNavigationAction
                 label="Explore"
@@ -125,7 +138,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <BottomNavigationAction
                 label="Opportunities"
                 value="/page3"
-                icon={<Page3Icon style={{ width: 24, height: 24 }} />}
+                icon={<Page3Icon style={{ width: 24, height:24 }} />}
               />
             </BottomNavigation>
           </Paper>
@@ -134,5 +147,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-
 
