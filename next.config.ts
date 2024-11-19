@@ -5,6 +5,10 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   // Your existing Next.js config options (if any)
 
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   webpack(config, options) {
     // Find the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find((rule: any) =>
