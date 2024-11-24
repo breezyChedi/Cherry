@@ -15,7 +15,6 @@ import {
     CircularProgress,
     Tooltip,
 } from '@mui/material';
-import useMarksStore from '../stores/useMarksStore';
 
 import { useRouter } from 'next/navigation';
 import { auth, db } from '../firebaseConfig'; // Import Firebase Auth and Firestore
@@ -48,13 +47,6 @@ const allSubjects = [
 
 const CalculatorPage: React.FC = () => {
 
-    const {
-        subjects,
-        marks,
-        nbtScores,
-        apsScore,
-        setMarksData,
-    } = useMarksStore();
 
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -169,30 +161,7 @@ const CalculatorPage: React.FC = () => {
         // Optionally, save marks and subjects to localStorage
         //saveDataToLocalStorage();
 
-        setMarksData({
-            apsScore: totalAPS,
-            subjects: {
-                subject1,
-                subject2,
-                subject3,
-                subject4,
-                subject5,
-                subject6,
-            },
-            marks: {
-                mark1,
-                mark2,
-                mark3,
-                mark4,
-                mark5,
-                mark6,
-            },
-            nbtScores: {
-                nbtAL,
-                nbtQL,
-                nbtMAT,
-            },
-        });
+    
     };
 
 
