@@ -1,7 +1,7 @@
 // app/universities/page.tsx
 
 import React from 'react';
-import neo4j from 'neo4j-driver';
+import {Node} from 'neo4j-driver';
 import driver from '../lib/neo4j';
 import UniversitiesPageContent from '../components/UniversitiesPageContent';
 import { UniversityWithFaculties, Faculty } from '../types';
@@ -22,7 +22,7 @@ const UniversitiesPage = async () => {
     // Process the results
     const universities: UniversityWithFaculties[] = result.records.map((record) => {
       const universityNode = record.get('u');
-      const facultiesNodes = record.get('faculties') as neo4j.Node[];
+      const facultiesNodes = record.get('faculties') as Node[];
 
       // Map faculties to a list of Faculty objects
       const faculties: Faculty[] = facultiesNodes.map((facultyNode) => ({
