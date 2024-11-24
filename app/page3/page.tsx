@@ -13,7 +13,7 @@ const Page3: React.FC = () => {
   return (
     <div style={{ padding: '16px' }}>
       <Typography variant="h4" gutterBottom>
-        Funding Options
+        Funding Opportunities
       </Typography>
 
       {/* Accordion Section */}
