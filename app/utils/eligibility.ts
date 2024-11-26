@@ -12,13 +12,80 @@ interface UserData {
   nbtScores: { [key: string]: number };
 }
 
+
+function convertSubjPoints(pcMethod: string, val: number, subj: string): number {
+  switch (pcMethod) {
+    case 'PercNSC':
+    case 'UCTFPS':
+      // For 'PercNSC' and 'UCTFPS', return the input value directly
+      return val;
+
+    case 'APSPlus':
+      case 'WitsAPS':
+        // Scoring based on the provided table for Wits
+        if (subj === 'English' || subj === 'Mathematics' || subj === 'English HL' || subj === 'English FAL') {
+          if (val >= 90) return 8 + 2; // 10
+          else if (val >= 80) return 7 + 2; // 9
+          else if (val >= 70) return 6 + 2; // 8
+          else if (val >= 60) return 5 + 2; // 7
+          else if (val >= 50) return 4;
+          else if (val >= 40) return 3;
+          else return 0;
+        } else if (subj === 'Life Orientation') {
+          if (val >= 90) return 4;
+          else if (val >= 80) return 3;
+          else if (val >= 70) return 2;
+          else if (val >= 60) return 1;
+          else return 0;
+        } else {
+          // For other subjects
+          if (val >= 90) return 8;
+          else if (val >= 80) return 7;
+          else if (val >= 70) return 6;
+          else if (val >= 60) return 5;
+          else if (val >= 50) return 4;
+          else if (val >= 40) return 3;
+          else return 0;
+        }
+
+    case 'UWCAPS':
+      // For 'APSPlus', 'WitsAPS', and 'UWCAPS', use the following point mapping
+      if (val >= 90) return 8;
+      else if (val >= 80) return 7;
+      else if (val >= 70) return 6;
+      else if (val >= 60) return 5;
+      else if (val >= 50) return 4;
+      else if (val >= 40) return 3;
+      else if (val >= 30) return 2;
+      else if (val >= 20) return 1;
+      else return 0;
+
+    case 'APS':
+      // For 'APS', use a slightly different point mapping
+      if (val >= 80) return 7;
+      else if (val >= 70) return 6;
+      else if (val >= 60) return 5;
+      else if (val >= 50) return 4;
+      else if (val >= 40) return 3;
+      else if (val >= 30) return 2;
+      else if (val >= 20) return 1;
+      else return 0;
+
+    default:
+      // If pcMethod doesn't match any known cases, return 0 or handle as needed
+      console.warn(`Unknown pcMethod: ${pcMethod}. Returning 0.`);
+      return 0;
+  }
+}
+
+
 function calculateTotalPoints(
   pcMethod: string,
   subjectMarks: SubjectMark[],
   faculty: string,
   nbtScores: { [key: string]: number }
 ): number {
-
+    console.log("Subject Marks : ", subjectMarks)
     //pc passed to calc Tot determmines switch
     console.log("\ncalc tot Elig:", pcMethod)
   switch (pcMethod) {
@@ -77,7 +144,7 @@ function calculateTotalPoints(
         return total;
       }, 0);
 
-    case 'UCTAPS':
+    case 'UCTFPS':
       if (faculty === 'Health Science') {
         const subjectTotal = subjectMarks.reduce((sum, { mark }) => sum + mark, 0);
         const nbtTotal = Object.values(nbtScores).reduce((sum, score) => sum + score, 0);
@@ -89,7 +156,6 @@ function calculateTotalPoints(
           } else {
             total += mark;
           }
-
           return total;
         }, 0);
       } else {
@@ -98,6 +164,16 @@ function calculateTotalPoints(
         
         //subjectMArks.reduce comp or 0?
       }
+      
+      case 'WitsAPS':
+        // Calculate the total points for WitsAPS by summing up converted points
+        return subjectMarks.reduce((total, { subject, mark }) => {
+          const points = convertSubjPoints(pcMethod, mark, subject);
+          total += points;
+          console.log(`WitsAPS (${subject}): Mark: ${mark}, Points: ${points}, Running Total: ${total}`);
+          return total;
+        }, 0);
+
     default:
       return 0;
   }
@@ -110,20 +186,45 @@ export function filterDegreesByEligibility(
 ): Degree[] {
     console.log("\nfilter degrees?:")
   return degrees.filter((degree) => {
-    console.log("degree 1?")
+    console.log("--degree--\n")
     
     const subjectRequirementsMet = degree.subjectRequirements.every((req) => {
-        console.log("degsubjreq", degree.subjectRequirements)
 
+        console.log("degree subject req: ", degree.subjectRequirements)
+        console.log("userData: \n", userData,"\n")
+
+/*
       const userSubjectMark = userData.subjectMarks.find(
         (sm) => sm.subject === req.subject || sm.subject === req.orSubject
       );
-      console.log("usrsubjmrk:" , userSubjectMark)
+*/
+const userSubjectMark = userData.subjectMarks.find((sm) => {
+  if (req.subject === 'otherLang') {
+    // Match any FAL subject
+    return sm.subject.endsWith('FAL');
+  }
+  if (req.orSubject) {
+    return sm.subject === req.subject || sm.subject === req.orSubject;
+  }
+  return sm.subject === req.subject;
+});
+
+
+
+      console.log("user subj mark:" , userSubjectMark)
+
       if (!userSubjectMark) {
         return false;
       }
-      console.log("Req: ", userSubjectMark.mark, req.minPoints)
-      return userSubjectMark.mark >= req.minPoints;
+
+      const convSubjMark=convertSubjPoints(degree.pointCalculation, userSubjectMark.mark,userSubjectMark.subject)
+
+      //console.log("Req: ", userSubjectMark.mark, req.minPoints)
+      //return userSubjectMark.mark >= req.minPoints;
+
+      console.log("val vs Req : ", convSubjMark, req.minPoints)
+      return convSubjMark>= req.minPoints;
+
     });
 
     if (!subjectRequirementsMet) {
@@ -138,6 +239,7 @@ export function filterDegreesByEligibility(
       faculty,
       userData.nbtScores
     );
+    console.log("totalPoints: ", totalPoints)
 
     if (degree.pointRequirement !== null && totalPoints < degree.pointRequirement) {
       return false;
