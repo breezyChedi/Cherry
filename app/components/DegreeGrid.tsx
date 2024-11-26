@@ -139,7 +139,7 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
     
  
     return (
-    <Grid container spacing={2} style={{ marginTop: '16px' }}>
+    <Grid container spacing={2} style={{ marginTop: '16px', marginBottom: '16px' }}>
       {filteredDegrees.map((degree) => (
         <Grid item xs={12} sm={6} md={4} key={degree.id} style={{ display: 'flex' }}>
           <Card style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>

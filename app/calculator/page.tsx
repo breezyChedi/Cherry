@@ -399,7 +399,7 @@ const CalculatorPage: React.FC = () => {
                     variant="contained"
                     color="primary"
                     href="https://nbtests.uct.ac.za/"
-                    style={{ marginTop: '16px' }}
+                    style={{ marginTop: '16px', marginRight: '5px',marginLeft: '5px' }}
                 >
                     Book a NBT test
                 </Button>
