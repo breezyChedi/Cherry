@@ -395,7 +395,14 @@ const CalculatorPage: React.FC = () => {
                 >
                     Calculate APS
                 </Button>
-
+                <Button
+                    variant="contained"
+                    color="primary"
+                    href="https://nbtests.uct.ac.za/"
+                    style={{ marginTop: '16px' }}
+                >
+                    Book a NBT test
+                </Button>
                 <Button
                     variant="contained"
                     color="primary"
