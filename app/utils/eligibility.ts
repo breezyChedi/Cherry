@@ -198,6 +198,8 @@ export function filterDegreesByEligibility(
         (sm) => sm.subject === req.subject || sm.subject === req.orSubject
       );
 */
+
+/*
 const userSubjectMark = userData.subjectMarks.find((sm) => {
   if (req.subject === 'otherLang') {
     // Match any FAL subject
@@ -207,6 +209,31 @@ const userSubjectMark = userData.subjectMarks.find((sm) => {
     return sm.subject === req.subject || sm.subject === req.orSubject;
   }
   return sm.subject === req.subject;
+});
+*/
+const matchedSubjects = new Set<string>();
+
+const userSubjectMark = userData.subjectMarks.find((sm) => {
+  if (matchedSubjects.has(req.subject) || matchedSubjects.has(req.orSubject)) {
+    return false; // Prevent re-matching of already-checked subjects
+  }
+
+  if (req.subject === 'otherLang') {
+    if (sm.subject.endsWith('FAL')) {
+      matchedSubjects.add(sm.subject);
+      return true;
+    }
+  } else if (req.orSubject) {
+    if (sm.subject === req.subject || sm.subject === req.orSubject) {
+      matchedSubjects.add(sm.subject);
+      return true;
+    }
+  } else if (sm.subject === req.subject) {
+    matchedSubjects.add(sm.subject);
+    return true;
+  }
+
+  return false;
 });
 
 
