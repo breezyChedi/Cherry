@@ -61,7 +61,7 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, isSelected,
         style={{
           marginTop: "16px",
           padding: "8px 16px",
-          backgroundColor: "#f300e3",
+          backgroundColor: "#e300f3",
           color: "#fff",
           border: "none",
           borderRadius: "4px",
