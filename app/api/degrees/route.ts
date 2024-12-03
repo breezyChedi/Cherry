@@ -73,6 +73,7 @@ export async function GET(request: NextRequest) {
       return {
         id: degreeNode.identity.toNumber(),
         name: degreeNode.properties.name,
+        description: degreeNode.properties.description,
         subjectRequirements: processedSubjectRequirements, // Correctly assign processed requirements
         pointRequirement,
         pointCalculation,

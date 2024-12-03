@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Degree } from '../types';
-import { Grid, Card, CardContent, Typography, List, ListItem, ListItemText, CircularProgress } from '@mui/material';
+import { Grid, Card, Button, Collapse, CardContent, Typography, List, ListItem, ListItemText, CircularProgress } from '@mui/material';
 import { SubjectRequirement } from '../types';
 
 import { filterDegreesByEligibility } from '../utils/eligibility';
@@ -18,17 +18,18 @@ interface DegreeGridProps {
 }
 
 const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, faculty }) => {
-  
+
   const [filteredDegrees, setFilteredDegrees] = useState<Degree[]>(degrees);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   useEffect(() => {
     console.log('useEffect triggered');
     console.log('filterByEligibility:', filterByEligibility);
     if (filterByEligibility) {
 
-      
+
 
       setLoading(true);
       const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -69,7 +70,7 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
               setError('Profile data not found.');
             }
           } catch (err) {
-            
+
             console.error('Error fetching profile data:', err);
             setError('Error fetching profile data.');
           } finally {
@@ -103,47 +104,69 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
       </div>
     );
   }
+  const handleToggle = (degreeId: string) => {
+    setExpandedCard((prev) => (prev === degreeId ? null : degreeId));
+  };
 
-    const formatSubjectRequirements = (requirements: SubjectRequirement[]) => {
-        const processed: string[] = [];
-        const orGroups: { [key: string]: { [subject: string]: number } } = {};
-    
-        requirements.forEach((req) => {
-          if (req.orSubject) {
-            // Sort subjects alphabetically to create a unique key
-            const subjects = [req.subject, req.orSubject].sort();
-            const key = subjects.join(' OR ');
-    
-            if (!orGroups[key]) {
-              orGroups[key] = { [req.subject]: req.minPoints };
-            } else {
-              orGroups[key][req.subject] = req.minPoints;
-            }
-          } else {
-            // Non-OR requirements are added directly
-            processed.push(`${req.subject}: ${req.minPoints}`);
-          }
-        });
-    
-        // Process OR groups to create combined display strings
-        Object.entries(orGroups).forEach(([subjects, subjectPoints]) => {
-          const formattedSubjects = Object.entries(subjectPoints)
-            .map(([subject, points]) => `${subject}: ${points}`)
-            .join(' OR ');
-          
-          processed.push(formattedSubjects);
-        });
-    
-        return processed;
-      };
-    
- 
-    return (
-    <Grid container spacing={2} style={{ marginTop: '16px', marginBottom: '16px' }}>
+
+  const formatDescription = (description: string): string => {
+    // Replace `**...**` with `<strong>...</strong>` for bold subheadings
+    return description.replace(/\*\*(.*?)\*\*/g, '<br><br><strong>$1</strong><br>');
+  };
+
+  const formatSubjectRequirements = (requirements: SubjectRequirement[]) => {
+    const processed: string[] = [];
+    const orGroups: { [key: string]: { [subject: string]: number } } = {};
+
+    requirements.forEach((req) => {
+      if (req.orSubject) {
+        // Sort subjects alphabetically to create a unique key
+        const subjects = [req.subject, req.orSubject].sort();
+        const key = subjects.join(' OR ');
+
+        if (!orGroups[key]) {
+          orGroups[key] = { [req.subject]: req.minPoints };
+        } else {
+          orGroups[key][req.subject] = req.minPoints;
+        }
+      } else {
+        // Non-OR requirements are added directly
+        processed.push(`${req.subject}: ${req.minPoints}`);
+      }
+    });
+
+    // Process OR groups to create combined display strings
+    Object.entries(orGroups).forEach(([subjects, subjectPoints]) => {
+      const formattedSubjects = Object.entries(subjectPoints)
+        .map(([subject, points]) => `${subject}: ${points}`)
+        .join(' OR ');
+
+      processed.push(formattedSubjects);
+    });
+
+    return processed;
+  };
+
+
+  return (
+    <Grid container spacing={2} style={{ marginTop: '16px', marginBottom: '48px' }}>
       {filteredDegrees.map((degree) => (
-        <Grid item xs={12} sm={6} md={4} key={degree.id} style={{ display: 'flex' }}>
-          <Card style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <CardContent style={{ flexGrow: 1 }}>
+        <Grid item xs={expandedCard === degree.id.toString() ? 12 : 6} sm={expandedCard === degree.id.toString() ? 12 : 6} md={expandedCard === degree.id.toString() ? 12 : 4} key={degree.id} style={{
+          display: 'flex',
+          flexDirection: 'column',
+          marginBottom: expandedCard === degree.id.toString() ? '20px' : '0',
+        }}>
+          <Card style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            transition: 'height 0.3s ease',
+            height: expandedCard === degree.id.toString() ? 'auto' : '100%',
+          }}>
+            <CardContent style={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              flexGrow: 1 }}>
               <Typography variant="h6" gutterBottom>
                 {degree.name}
               </Typography>
@@ -167,7 +190,7 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
                   </Typography>
                   <List dense>
                     {formatSubjectRequirements(degree.subjectRequirements).map((req, index) => (
-                      
+
                       <ListItem key={index} disableGutters>
                         <ListItemText primary={req} />
                       </ListItem>
@@ -179,6 +202,25 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
                   <strong>Subject Requirements:</strong> N/A
                 </Typography>
               )}
+              <Button
+                size="small"
+                onClick={() => handleToggle(degree.id.toString())}
+                style={{ marginTop: 'auto' }}
+              >
+                {expandedCard === degree.id.toString() ? 'Hide Details' : 'View Details'}
+              </Button>
+              <Collapse in={expandedCard === degree.id.toString()} timeout="auto" unmountOnExit>
+                <div style={{ marginTop: '16px' }}>
+                  {degree.description && (
+                    <Typography
+                      variant="body2"
+                      color="textSecondary"
+                      dangerouslySetInnerHTML={{ __html: formatDescription(degree.description) }}
+                    />
+                  )}
+                  {/* Add any additional details here */}
+                </div>
+              </Collapse>
             </CardContent>
           </Card>
         </Grid>

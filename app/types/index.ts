@@ -32,6 +32,7 @@ export interface UniversityWithFaculties {
   export interface Degree {
     id: number;
     name: string;
+    description: string;
     subjectRequirements: SubjectRequirement[];
     pointRequirement: number | null;
     pointCalculation: string;
