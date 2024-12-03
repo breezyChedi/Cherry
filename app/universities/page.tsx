@@ -36,6 +36,7 @@ const UniversitiesPage = async () => {
         name: universityNode.properties.name,
         location: universityNode.properties.location,
         logoUrl: universityNode.properties.logoUrl,
+        appUrl: universityNode.properties.appUrl,
         faculties, // Attach the faculties to the university
       };
     });

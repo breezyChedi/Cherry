@@ -24,8 +24,6 @@ const FacultySpinner: React.FC<FacultySpinnerProps> = ({ faculties, filterByElig
     // Fetch degrees for the selected faculty
     setLoadingDegrees(true);
     try {
-      console.log("facSpin .. api / degrees")
-      console.log(facultyId)
       const response = await fetch(`/api/degrees?facultyId=${facultyId}`);
       const data = await response.json();
       if (response.ok) {

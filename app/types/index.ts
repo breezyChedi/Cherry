@@ -5,6 +5,7 @@ export interface University {
   name: string;
   location: string;
   logoUrl: string;
+  appUrl: string;
   // Add other properties as needed
 }
 
@@ -26,6 +27,7 @@ export interface UniversityWithFaculties {
     name: string;
     location: string;
     logoUrl: string;
+    appUrl: string;
     faculties: Faculty[]; // Array of Faculty objects
   }
 
