@@ -87,7 +87,7 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
     } else {
       degrees.forEach(degree => {
         if (degree.subjectRequirements) {
-          console.log(`Subject Requirements for ${degree.name}:`, degree.subjectRequirements);
+          console.log(`Subject Requirements for ${degree.name}:`, degree.subjectRequirements, "\n",degree.subjectRequirements[0], "\n",degree.subjectRequirements[0].minPoints);
         }
       });
 
