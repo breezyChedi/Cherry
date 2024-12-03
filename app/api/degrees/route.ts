@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
       `,
       { facultyId }
     );
+    console.log("fac: ", facultyId )
 
     const degrees = result.records.map((record) => {
       const pointCalculation = record.get('pointCalculation') || 'APS';
@@ -67,8 +68,8 @@ export async function GET(request: NextRequest) {
           ? pointRequirementRaw.toNumber()
           : null;
         
-     // console.log("pR:", pointRequirementRaw, pointRequirement);
-      //console.log("Subject Requirements:", processedSubjectRequirements);
+      console.log("pR:", pointRequirementRaw, pointRequirement);
+      console.log("Subject Requirements:", processedSubjectRequirements);
 
       return {
         id: degreeNode.identity.toNumber(),
