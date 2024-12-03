@@ -85,6 +85,12 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
 
       return () => unsubscribe();
     } else {
+      degrees.forEach(degree => {
+        if (degree.subjectRequirements) {
+          console.log(`Subject Requirements for ${degree.name}:`, degree.subjectRequirements);
+        }
+      });
+
       setFilteredDegrees(degrees);
     }
   }, [degrees, filterByEligibility, faculty]);
