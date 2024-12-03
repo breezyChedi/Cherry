@@ -183,7 +183,7 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
               )}
 
               {/* Display Subject Requirements */}
-              {degree.subjectRequirements && degree.subjectRequirements !== null && degree.subjectRequirements.length > 0 ? (
+              {degree.subjectRequirements && degree.subjectRequirements !== null && degree.subjectRequirements.filter(req => req !== null).length > 0 ? (
                 <div style={{ marginTop: '8px' }}>
                   <Typography variant="subtitle1">
                     <strong>Subject Requirements:</strong>
