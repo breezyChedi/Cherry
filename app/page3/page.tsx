@@ -30,13 +30,13 @@ const Page3: React.FC = () => {
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px' }}>
             <thead>
               <tr>
-                <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>
+                <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', backgroundColor: '#f2f2f2' }}>
                   Achievement Level
                 </th>
-                <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>
+                <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', backgroundColor: '#f2f2f2' }}>
                   Description of Competence
                 </th>
-                <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>
+                <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', backgroundColor: '#f2f2f2' }}>
                   Marks
                 </th>
               </tr>
@@ -84,7 +84,7 @@ const Page3: React.FC = () => {
           </Typography>
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px' }}>
             <thead><tr>
-              <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Promotion Requirements</th>
+              <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', backgroundColor: '#f2f2f2' }}>Promotion Requirements</th>
 
             </tr></thead>
             <tbody>
@@ -193,7 +193,7 @@ const Page3: React.FC = () => {
             NSFAS bursary is available to all South African citizens and permanent residents whose combined household income does not exceed R350 000 per annum. For individuals living with disabilities, the income threshold is R600 000 per annum to ensure financial accessibility and support.
           </Typography>
           <table>
-            <thead><th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Requirements</th>
+            <thead><th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', backgroundColor: '#f2f2f2' }}>Requirements</th>
             </thead>
             <tr>
               <td style={{ border: '1px solid #ddd', padding: '8px' }}>South African Identification Document (ID)
@@ -224,7 +224,7 @@ const Page3: React.FC = () => {
           </Typography>
           <table>
             <thead>
-              <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Standard bank Student Loan  
+              <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', backgroundColor: '#f2f2f2' }}>Standard bank Student Loan  
               </th>
             </thead>
             <tr>
@@ -257,7 +257,7 @@ SACASS approved Flight Schools
           </table>
           <table>
             <thead>
-              <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>ABSA Student Loan  
+              <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', backgroundColor: '#f2f2f2' }}>ABSA Student Loan  
               </th>
             </thead>
             <tr>
@@ -286,7 +286,7 @@ Aviation Training from an approved training organization (ATO) which has been ap
           </table>
           <table>
             <thead>
-              <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Nedbank Student Loan  
+              <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center', backgroundColor: '#f2f2f2' }}>Nedbank Student Loan  
               </th>
             </thead>
             <tr>
