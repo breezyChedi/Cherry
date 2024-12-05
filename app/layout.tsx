@@ -65,6 +65,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     }
   };
 
+  const handleCherryClick = () => {
+    router.push('https://cherry-beige.my.canva.site/'); // Redirects to the external site
+  };
+
   return (
     <html lang="en">
       <head>
@@ -98,7 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </Typography>
 
               {/* Right-side Icon */}
-              <IconButton edge="end" color="inherit" aria-label="cherry">
+              <IconButton edge="end" color="inherit" aria-label="cherry" onClick={handleCherryClick}>
                 <Cherry />
               </IconButton>
             </Toolbar>
