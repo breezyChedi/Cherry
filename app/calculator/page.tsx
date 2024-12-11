@@ -16,8 +16,8 @@ import {
     Tooltip,
     SvgIcon,
 } from '@mui/material';
-
-import CherrySvg from '../icons/CherryIco.svg';
+import Image from 'next/image';
+import cherryLogoPng from '../icons/cherryLogoPng.png';
 
 
 import { useRouter } from 'next/navigation';
@@ -390,18 +390,42 @@ const CalculatorPage: React.FC = () => {
                     />
                 </Grid>
             </Grid>
-            {/* Circular Progress Bar */}
-            <div style={{ marginTop: '24px', textAlign: 'center' }}>
-                <CircularProgress
-                    variant="determinate"
-                    value={(apsScoreLoc / 42) * 100}
-                    size={100}
-                    thickness={4}
-                />
+            <div
+                style={{
+                    marginTop: '24px',
+                    display: 'flex',           // Flexbox for centering the container
+                    flexDirection: 'column',   // Stack items vertically
+                    alignItems: 'center',      // Center horizontally
+                }}
+            >
+                {/* Circular Progress Bar */}
+                <div style={{
+                    marginTop: '24px', textAlign: 'center',
+                    position: 'relative', display: 'inline-block',
+                }}>
+                    <CircularProgress
+                        variant="determinate"
+                        value={(apsScoreLoc / 42) * 100}
+                        size={100}
+                        thickness={4}
+                    />
+                    {/* Center Icon */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)', // Centers the image
+                        }}
+                    >
+                        <Image src={cherryLogoPng} alt="Center Icon" width={60} height={60} />
+                    </div>
+                </div>
                 <Typography variant="h6" style={{ marginTop: '8px', marginBottom: '32px' }}>
                     APS Score: {apsScoreLoc}
                 </Typography>
             </div>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
                 <Button
                     variant="contained"
