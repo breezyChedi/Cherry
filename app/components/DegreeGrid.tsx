@@ -168,6 +168,8 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
             flexDirection: 'column',
             transition: 'height 0.3s ease',
             height: expandedCard === degree.id.toString() ? 'auto' : '100%',
+            border: '2px solid #efb5eb'
+            
           }}>
             <CardContent style={{ 
               display: 'flex',

@@ -14,7 +14,11 @@ import {
     Grid,
     CircularProgress,
     Tooltip,
+    SvgIcon,
 } from '@mui/material';
+
+import CherrySvg from '../icons/CherryIco.svg';
+
 
 import { useRouter } from 'next/navigation';
 import { auth, db } from '../firebaseConfig'; // Import Firebase Auth and Firestore
@@ -161,7 +165,7 @@ const CalculatorPage: React.FC = () => {
         // Optionally, save marks and subjects to localStorage
         //saveDataToLocalStorage();
 
-    
+
     };
 
 
@@ -386,6 +390,18 @@ const CalculatorPage: React.FC = () => {
                     />
                 </Grid>
             </Grid>
+            {/* Circular Progress Bar */}
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                <CircularProgress
+                    variant="determinate"
+                    value={(apsScoreLoc / 42) * 100}
+                    size={100}
+                    thickness={4}
+                />
+                <Typography variant="h6" style={{ marginTop: '8px', marginBottom: '32px' }}>
+                    APS Score: {apsScoreLoc}
+                </Typography>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
                 <Button
                     variant="contained"
@@ -399,7 +415,7 @@ const CalculatorPage: React.FC = () => {
                     variant="contained"
                     color="primary"
                     href="https://nbtests.uct.ac.za/"
-                    style={{ marginTop: '16px', marginRight: '5px',marginLeft: '5px', justifyContent: 'center',textAlign: 'center' }}
+                    style={{ marginTop: '16px', marginRight: '5px', marginLeft: '5px', justifyContent: 'center', textAlign: 'center' }}
                 >
                     Book a NBT test
                 </Button>
@@ -420,48 +436,37 @@ const CalculatorPage: React.FC = () => {
             <Grid container spacing={2}>
                 <Grid item xs={4} sm={4}>
                     <Tooltip title="Academic Literacy">
-                    <TextField
-                        fullWidth
-                        label="NBT (AL)"
-                        value={nbtAL}
-                        onChange={(e) => setNbtAL(e.target.value)}
-                        type="number"
-                    /></Tooltip>
+                        <TextField
+                            fullWidth
+                            label="NBT (AL)"
+                            value={nbtAL}
+                            onChange={(e) => setNbtAL(e.target.value)}
+                            type="number"
+                        /></Tooltip>
                 </Grid>
                 <Grid item xs={4} sm={4}>
                     <Tooltip title="Quantitative Literacy">
-                    <TextField
-                        fullWidth
-                        label="NBT (QL)"
-                        value={nbtQL}
-                        onChange={(e) => setNbtQL(e.target.value)}
-                        type="number"
-                    /></Tooltip>
+                        <TextField
+                            fullWidth
+                            label="NBT (QL)"
+                            value={nbtQL}
+                            onChange={(e) => setNbtQL(e.target.value)}
+                            type="number"
+                        /></Tooltip>
                 </Grid>
                 <Grid item xs={4} sm={4}>
                     <Tooltip title="Mathematics">
-                    <TextField
-                        fullWidth
-                        label="NBT (MAT)"
-                        value={nbtMAT}
-                        onChange={(e) => setNbtMAT(e.target.value)}
-                        type="number"
-                    /></Tooltip>
+                        <TextField
+                            fullWidth
+                            label="NBT (MAT)"
+                            value={nbtMAT}
+                            onChange={(e) => setNbtMAT(e.target.value)}
+                            type="number"
+                        /></Tooltip>
                 </Grid>
             </Grid>
 
-            {/* Circular Progress Bar */}
-            <div style={{ marginTop: '24px', textAlign: 'center' }}>
-                <CircularProgress
-                    variant="determinate"
-                    value={(apsScoreLoc / 42) * 100}
-                    size={100}
-                    thickness={4}
-                />
-                <Typography variant="h6" style={{ marginTop: '8px', marginBottom: '32px' }}>
-                    APS Score: {apsScoreLoc}
-                </Typography>
-            </div>
+
             {/* Error Snackbar */}
             <Snackbar
                 open={errorOpen}
