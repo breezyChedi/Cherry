@@ -29,6 +29,8 @@ const theme = createTheme({
   palette: {
     primary: {
       main: purple[700],
+    },    secondary: {
+      main: '#efb5eb', // Secondary color
     },
   },
 });

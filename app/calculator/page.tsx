@@ -408,6 +408,7 @@ const CalculatorPage: React.FC = () => {
                         value={(apsScoreLoc / 42) * 100}
                         size={100}
                         thickness={4}
+                        color='secondary'
                     />
                     {/* Center Icon */}
                     <div
