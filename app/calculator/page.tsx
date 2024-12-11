@@ -427,38 +427,18 @@ const CalculatorPage: React.FC = () => {
                 </Typography>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
                 <Button
                     variant="contained"
                     color="primary"
                     onClick={calculateAndDisplayAPS}
-                    style={{ marginTop: '16px' }}
+                    style={{ marginTop: '16px', width: '90%', borderRadius: '16px' }}
                 >
                     Calculate APS
                 </Button>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    href="https://nbtests.uct.ac.za/"
-                    style={{ marginTop: '16px', marginRight: '5px', marginLeft: '5px', justifyContent: 'center', textAlign: 'center' }}
-                >
-                    Book a NBT test
-                </Button>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSaveToProfile}
-                    style={{ marginTop: '16px' }}
-                >
-                    Save to Profile
-                </Button>
             </div>
-
-            {/* NBT Inputs */}
-            <Typography variant="h6" gutterBottom style={{ marginTop: '24px' }}>
-                NBT Scores
-            </Typography>
-            <Grid container spacing={2}>
+            <div style={{ marginTop: '16px', marginLeft: '5%', marginRight: '5%' }}> 
+             <Grid container spacing={2}>
                 <Grid item xs={4} sm={4}>
                     <Tooltip title="Academic Literacy">
                         <TextField
@@ -490,7 +470,28 @@ const CalculatorPage: React.FC = () => {
                         /></Tooltip>
                 </Grid>
             </Grid>
+                    </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', marginBottom:'32px'}}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    href="https://nbtests.uct.ac.za/"
+                    style={{ marginTop: '16px', marginRight: '5px', marginLeft: '5%', justifyContent: 'center', textAlign: 'center', width: '40%', borderRadius: '16px' }}
+                >
+                    Book a NBT test
+                </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSaveToProfile}
+                    style={{ marginTop: '16px', marginRight: '5%', marginLeft: '5px', justifyContent: 'center', textAlign: 'center', width: '40%', borderRadius: '16px' }}
+                >
+                    Save to Profile
+                </Button>
+            </div>
 
+
+           
 
             {/* Error Snackbar */}
             <Snackbar
