@@ -214,12 +214,12 @@ const CalculatorPage: React.FC = () => {
             setErrorOpen(true);
         }
     };
-
+/*   <Typography variant="h6" gutterBottom>
+                Subject Selection
+            </Typography> */
     return (
         <div style={{ padding: '16px' }}>
-            <Typography variant="h6" gutterBottom>
-                Subject Selection
-            </Typography>
+          
 
             <Grid container spacing={2}>
                 {/* Subject 1 */}

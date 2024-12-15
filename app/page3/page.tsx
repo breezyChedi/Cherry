@@ -9,12 +9,14 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
+
 const Page3: React.FC = () => {
+  /*       <Typography variant="h4" gutterBottom>
+        Cherry Info
+      </Typography>*/
   return (
     <div style={{ padding: '16px' }}>
-      <Typography variant="h4" gutterBottom>
-        Cherry Info
-      </Typography>
+
 
       {/* Accordion Section */}
       <Accordion>
