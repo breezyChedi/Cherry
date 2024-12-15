@@ -40,11 +40,12 @@ const UniversitiesPage = async () => {
         faculties, // Attach the faculties to the university
       };
     });
-
+    console.log("universities\n",universities)
     // Render the page with the fetched data
     return <UniversitiesPageContent universities={universities} />;
   } catch (error) {
     console.error('Error fetching universities and faculties:', error);
+    
     return <div>Error loading universities.</div>;
   } finally {
     await session.close();
