@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+/*
 :root {
   --background: #ffffff;
   --foreground: #c75fb7;
@@ -19,7 +19,7 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
-
+*/
 h1, h2 {
   font-family: Arial, sans-serif;
 }
