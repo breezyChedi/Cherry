@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'; // Correct imports
 import { onAuthStateChanged } from 'firebase/auth'; // Firebase Auth
 import { auth } from './firebaseConfig'; // Ensure this points to your Firebase config file
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import './globals.css';
 import {
   AppBar,
   Toolbar,
