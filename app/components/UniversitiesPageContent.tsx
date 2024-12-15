@@ -17,7 +17,7 @@ const UniversitiesPageContent: React.FC<UniversitiesPageContentProps> = ({ unive
   return (
     <div>
       
-      <h1>Universities and Degrees</h1>
+      <h1 style={{ fontFamily: 'Arial' }}>Universities and Degrees</h1>
       <FormControlLabel
         control={
           <Checkbox

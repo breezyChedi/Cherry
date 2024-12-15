@@ -48,7 +48,7 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, isSelected,
       />
     </div>
     <div>
-      <h2 style={{ margin: '8px 0' }}>{university.name}</h2>
+      <h2 style={{ fontFamily: 'Arial', margin: '8px 0' }}>{university.name}</h2>
       <p style={{ margin: '0' }}>{university.location}</p>
     </div>
      <div>
