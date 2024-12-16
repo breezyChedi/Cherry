@@ -20,34 +20,34 @@ function convertSubjPoints(pcMethod: string, val: number, subj: string): number 
       // For 'PercNSC' and 'UCTFPS', return the input value directly
       return val;
 
+    
+    case 'WitsAPS':
+      // Scoring based on the provided table for Wits
+      if (subj === 'English' || subj === 'Mathematics' || subj === 'English HL' || subj === 'English FAL') {
+        if (val >= 90) return 8 + 2; // 10
+        else if (val >= 80) return 7 + 2; // 9
+        else if (val >= 70) return 6 + 2; // 8
+        else if (val >= 60) return 5 + 2; // 7
+        else if (val >= 50) return 4;
+        else if (val >= 40) return 3;
+        else return 0;
+      } else if (subj === 'Life Orientation') {
+        if (val >= 90) return 4;
+        else if (val >= 80) return 3;
+        else if (val >= 70) return 2;
+        else if (val >= 60) return 1;
+        else return 0;
+      } else {
+        // For other subjects
+        if (val >= 90) return 8;
+        else if (val >= 80) return 7;
+        else if (val >= 70) return 6;
+        else if (val >= 60) return 5;
+        else if (val >= 50) return 4;
+        else if (val >= 40) return 3;
+        else return 0;
+      }
     case 'APSPlus':
-      case 'WitsAPS':
-        // Scoring based on the provided table for Wits
-        if (subj === 'English' || subj === 'Mathematics' || subj === 'English HL' || subj === 'English FAL') {
-          if (val >= 90) return 8 + 2; // 10
-          else if (val >= 80) return 7 + 2; // 9
-          else if (val >= 70) return 6 + 2; // 8
-          else if (val >= 60) return 5 + 2; // 7
-          else if (val >= 50) return 4;
-          else if (val >= 40) return 3;
-          else return 0;
-        } else if (subj === 'Life Orientation') {
-          if (val >= 90) return 4;
-          else if (val >= 80) return 3;
-          else if (val >= 70) return 2;
-          else if (val >= 60) return 1;
-          else return 0;
-        } else {
-          // For other subjects
-          if (val >= 90) return 8;
-          else if (val >= 80) return 7;
-          else if (val >= 70) return 6;
-          else if (val >= 60) return 5;
-          else if (val >= 50) return 4;
-          else if (val >= 40) return 3;
-          else return 0;
-        }
-
     case 'UWCAPS':
       // For 'APSPlus', 'WitsAPS', and 'UWCAPS', use the following point mapping
       if (val >= 90) return 8;
@@ -85,9 +85,9 @@ function calculateTotalPoints(
   faculty: string,
   nbtScores: { [key: string]: number }
 ): number {
-    console.log("Subject Marks : ", subjectMarks)
-    //pc passed to calc Tot determmines switch
-    console.log("\ncalc tot Elig:", pcMethod)
+  console.log("Subject Marks : ", subjectMarks)
+  //pc passed to calc Tot determmines switch
+  console.log("\ncalc tot Elig:", pcMethod)
   switch (pcMethod) {
     case 'APS':
       return subjectMarks.reduce((total, { mark }) => {
@@ -159,20 +159,20 @@ function calculateTotalPoints(
           return total;
         }, 0);
       } else {
-        
+
         return subjectMarks.reduce((sum, { mark }) => sum + mark, 0);
-        
+
         //subjectMArks.reduce comp or 0?
       }
-      
-      case 'WitsAPS':
-        // Calculate the total points for WitsAPS by summing up converted points
-        return subjectMarks.reduce((total, { subject, mark }) => {
-          const points = convertSubjPoints(pcMethod, mark, subject);
-          total += points;
-          console.log(`WitsAPS (${subject}): Mark: ${mark}, Points: ${points}, Running Total: ${total}`);
-          return total;
-        }, 0);
+
+    case 'WitsAPS':
+      // Calculate the total points for WitsAPS by summing up converted points
+      return subjectMarks.reduce((total, { subject, mark }) => {
+        const points = convertSubjPoints(pcMethod, mark, subject);
+        total += points;
+        console.log(`WitsAPS (${subject}): Mark: ${mark}, Points: ${points}, Running Total: ${total}`);
+        return total;
+      }, 0);
 
     default:
       return 0;
@@ -184,73 +184,73 @@ export function filterDegreesByEligibility(
   userData: UserData,
   faculty: string
 ): Degree[] {
-    console.log("\nfilter degrees?:")
+  console.log("\nfilter degrees?:")
   return degrees.filter((degree) => {
     console.log("--degree--\n")
-    
+
     const subjectRequirementsMet = degree.subjectRequirements.every((req) => {
 
-        console.log("degree subject req: ", degree.subjectRequirements)
-        console.log("userData: \n", userData,"\n")
+      console.log("degree subject req: ", degree.subjectRequirements)
+      console.log("userData: \n", userData, "\n")
 
-/*
-      const userSubjectMark = userData.subjectMarks.find(
-        (sm) => sm.subject === req.subject || sm.subject === req.orSubject
-      );
-*/
+      /*
+            const userSubjectMark = userData.subjectMarks.find(
+              (sm) => sm.subject === req.subject || sm.subject === req.orSubject
+            );
+      */
 
-/*
-const userSubjectMark = userData.subjectMarks.find((sm) => {
-  if (req.subject === 'otherLang') {
-    // Match any FAL subject
-    return sm.subject.endsWith('FAL');
-  }
-  if (req.orSubject) {
-    return sm.subject === req.subject || sm.subject === req.orSubject;
-  }
-  return sm.subject === req.subject;
-});
-*/
-const matchedSubjects = new Set<string>();
+      /*
+      const userSubjectMark = userData.subjectMarks.find((sm) => {
+        if (req.subject === 'otherLang') {
+          // Match any FAL subject
+          return sm.subject.endsWith('FAL');
+        }
+        if (req.orSubject) {
+          return sm.subject === req.subject || sm.subject === req.orSubject;
+        }
+        return sm.subject === req.subject;
+      });
+      */
+      const matchedSubjects = new Set<string>();
 
-const userSubjectMark = userData.subjectMarks.find((sm) => {
-  if (matchedSubjects.has(req.subject) || matchedSubjects.has(req.orSubject)) {
-    return false; // Prevent re-matching of already-checked subjects
-  }
+      const userSubjectMark = userData.subjectMarks.find((sm) => {
+        if (matchedSubjects.has(req.subject) || matchedSubjects.has(req.orSubject)) {
+          return false; // Prevent re-matching of already-checked subjects
+        }
 
-  if (req.subject === 'otherLang') {
-    if (sm.subject.endsWith('FAL')) {
-      matchedSubjects.add(sm.subject);
-      return true;
-    }
-  } else if (req.orSubject) {
-    if (sm.subject === req.subject || sm.subject === req.orSubject) {
-      matchedSubjects.add(sm.subject);
-      return true;
-    }
-  } else if (sm.subject === req.subject) {
-    matchedSubjects.add(sm.subject);
-    return true;
-  }
+        if (req.subject === 'otherLang') {
+          if (sm.subject.endsWith('FAL')) {
+            matchedSubjects.add(sm.subject);
+            return true;
+          }
+        } else if (req.orSubject) {
+          if (sm.subject === req.subject || sm.subject === req.orSubject) {
+            matchedSubjects.add(sm.subject);
+            return true;
+          }
+        } else if (sm.subject === req.subject) {
+          matchedSubjects.add(sm.subject);
+          return true;
+        }
 
-  return false;
-});
+        return false;
+      });
 
 
 
-      console.log("user subj mark:" , userSubjectMark)
+      console.log("user subj mark:", userSubjectMark)
 
       if (!userSubjectMark) {
         return false;
       }
 
-      const convSubjMark=convertSubjPoints(degree.pointCalculation, userSubjectMark.mark,userSubjectMark.subject)
+      const convSubjMark = convertSubjPoints(degree.pointCalculation, userSubjectMark.mark, userSubjectMark.subject)
 
       //console.log("Req: ", userSubjectMark.mark, req.minPoints)
       //return userSubjectMark.mark >= req.minPoints;
 
       console.log("val vs Req : ", convSubjMark, req.minPoints)
-      return convSubjMark>= req.minPoints;
+      return convSubjMark >= req.minPoints;
 
     });
 

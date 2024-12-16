@@ -38,20 +38,24 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, isSelected,
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between', // Ensures elements are distributed with space between
+
     }}
   >
-    <div>
+    <div style={{ marginBottom: "auto" }}>
       <img
         src={university.logoUrl}
         alt={`${university.name} Logo`}
         style={{ width: '100px', height: 'auto', marginBottom: '8px' }}
       />
     </div>
-    <div>
-      <h2 style={{ fontFamily: 'Arial', margin: '8px 0' }}>{university.name}</h2>
-      <p style={{ margin: '0' }}>{university.location}</p>
-    </div>
-     <div>
+    <div style={{ marginTop: "auto", textAlign: "center" }}>
+      <div
+        style={{ marginBottom: "8px" }}
+      >
+        <h2 style={{ fontFamily: 'Arial', margin: '8px 0' }}>{university.name}</h2>
+        <p style={{ margin: '0' }}>{university.location}</p>
+      </div>
+
       {/* Button to open appUrl */}
       <button
         onClick={(e) => {

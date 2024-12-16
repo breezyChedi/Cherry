@@ -209,7 +209,8 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
                   </List>
                 </div>
               ) : (
-                <Typography variant="body2" color="textSecondary" style={{ marginTop: '8px' }}>
+                //<Typography variant="body2" color="textSecondary" style={{ marginTop: '8px' }}>
+                <Typography variant="subtitle1">
                   <strong>Subject Requirements:</strong> N/A
                 </Typography>
               )}
