@@ -54,7 +54,7 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, isSelected,
         style={{ marginBottom: "8px", textAlign: "center" ,alignItems: "center"}}
       >
         <h2 style={{ fontFamily: 'Arial', margin: '8px 0' }}>{university.name}</h2>
-        <p style={{ fontFamily: 'Arial',margin: '0', display: 'flex', alignItems: 'center' }}><FaMapMarkerAlt style={{ marginRight: '8px' }} /> {/* Location icon */}{university.location}</p>
+        <p style={{ fontFamily: 'Arial',margin: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FaMapMarkerAlt style={{ marginRight: '8px' }} /> {/* Location icon */}{university.location}</p>
       </div>
 
       {/* Button to open appUrl */}
