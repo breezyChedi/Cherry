@@ -2,6 +2,7 @@
 "use client";
 
 import React from 'react';
+import { FaMapMarkerAlt } from 'react-icons/fa';
 
 interface University {
   id: number;
@@ -53,7 +54,7 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, isSelected,
         style={{ marginBottom: "8px" }}
       >
         <h2 style={{ fontFamily: 'Arial', margin: '8px 0' }}>{university.name}</h2>
-        <p style={{ margin: '0' }}>{university.location}</p>
+        <p style={{ fontFamily: 'Arial',margin: '0', display: 'flex', alignItems: 'center' }}><FaMapMarkerAlt style={{ marginRight: '8px' }} /> {/* Location icon */}{university.location}</p>
       </div>
 
       {/* Button to open appUrl */}
