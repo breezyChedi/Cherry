@@ -132,8 +132,10 @@ const ProfileDetailsPage: React.FC = () => {
     <Box sx={{ p: 2, maxWidth: 600, mx: 'auto', textAlign: 'center' }}>
       {/* Header Section */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Avatar sx={{ bgcolor: userProfile?.gender === 'Male'? '#5334cb' : userProfile?.gender === 'Female'? '#e718a7' : '#808080', 
-          width: 72, height: 72 }}>
+        <Avatar sx={{
+          bgcolor: userProfile?.gender === 'Male' ? '#5334cb' : userProfile?.gender === 'Female' ? '#e718a7' : '#808080',
+          width: 72, height: 72
+        }}>
           {userProfile?.name
             ? userProfile.name.charAt(0)
             : user?.email?.charAt(0)?.toUpperCase()}
@@ -158,40 +160,40 @@ const ProfileDetailsPage: React.FC = () => {
       </Typography>
 
       <Grid container spacing={2} mt={3}>
-      <Grid item xs={6}>
-    <Box
-      sx={{
-        backgroundColor: 'purple',
-        color: 'white',
-        borderRadius: 5,
-        p: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        height: '100%', // Ensures equal height with the adjacent card
-      }}
-    >
-      <Typography>APS Score</Typography>
-      <Typography variant="h4">{profile?.apsScore || 0}</Typography>
-    </Box>
-  </Grid>
-  <Grid item xs={6}>
-    <Box
-      sx={{
-        backgroundColor: 'purple',
-        color: 'white',
-        borderRadius: 5,
-        p: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        height: '100%', // Ensures equal height with the adjacent card
-      }}
-    >
-      <Typography>School</Typography>
-      <Typography>{userProfile?.highSchool || 'N/A'}</Typography>
-    </Box>
-  </Grid>
+        <Grid item xs={6}>
+          <Box
+            sx={{
+              backgroundColor: 'purple',
+              color: 'white',
+              borderRadius: 5,
+              p: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              height: '100%', // Ensures equal height with the adjacent card
+            }}
+          >
+            <Typography>APS Score</Typography>
+            <Typography variant="h4">{profile?.apsScore || 0}</Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={6}>
+          <Box
+            sx={{
+              backgroundColor: 'purple',
+              color: 'white',
+              borderRadius: 5,
+              p: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              height: '100%', // Ensures equal height with the adjacent card
+            }}
+          >
+            <Typography>School</Typography>
+            <Typography>{userProfile?.highSchool || 'N/A'}</Typography>
+          </Box>
+        </Grid>
         <Grid item xs={12}>
           <Typography
             sx={{
@@ -201,7 +203,7 @@ const ProfileDetailsPage: React.FC = () => {
               p: 1,
               borderTop: 10,
             }}
-             component="div"
+            component="div"
           >
             Nationality
             <Box display="flex" justifyContent="center" alignItems="center">
@@ -246,8 +248,38 @@ const ProfileDetailsPage: React.FC = () => {
               <Typography>{mark}%</Typography>
             </Box>
           ))) : (
-            <Typography>No subjects available.</Typography>
-          )}
+          <Typography>No subjects available.</Typography>
+        )}
+      </Box>
+      <Box mt={4}>
+        <Typography
+          variant="h6"
+          align="center"
+          sx={{ color: 'purple', fontWeight: 'bold', mb: 2 }}
+        >
+          National Benchmark Test (NBT) Scores
+        </Typography>
+        {profile?.nbtScores ? (
+          Object.keys(profile.nbtScores).map((key, index) => (
+            <Box
+              key={`nbt-${index}`}
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{
+                backgroundColor: 'lightblue',
+                borderRadius: 1,
+                p: 1,
+                mb: 1,
+              }}
+            >
+              <Typography>{formatNBTKey(key)}</Typography>
+              <Typography>{profile.nbtScores[key]}</Typography>
+            </Box>
+          ))
+        ) : (
+          <Typography>No NBT scores available.</Typography>
+        )}
       </Box>
     </Box>
   );
