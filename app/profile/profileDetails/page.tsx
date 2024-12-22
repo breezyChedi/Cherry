@@ -281,7 +281,15 @@ const ProfileDetailsPage: React.FC = () => {
           <Typography>No NBT scores available.</Typography>
         )}
       </Box>
+            <Box
+              component="footer"
+              sx={{
+                height: '64px', // Same height as your navbar
+                backgroundColor: 'white',
+              }}
+            ></Box>
     </Box>
+    
   );
 };
 
