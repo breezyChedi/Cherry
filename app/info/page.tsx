@@ -1,8 +1,15 @@
+'use client'
+
 import React from 'react';
 
 const NBTPage: React.FC = () => {
+
+  const handleNBTClick = () => {
+    window.location.href = 'https://nbtests.uct.ac.za/tests/register'; // Replace with your URL
+  };
+
   return (
-    <div className="p-6 bg-gray-50" style={{ fontFamily: 'Arial',alignItems: 'center', marginBottom: '80px' }} >
+    <div className="p-6 bg-gray-50" style={{ fontFamily: 'Arial',alignItems: 'center', marginBottom: '80px', display: 'flex' ,flexDirection:'column'}} >
       {/* NBT Section Card */}
       <div
         style={{
@@ -49,20 +56,13 @@ const NBTPage: React.FC = () => {
       </div>
 
       {/* Grid of Test Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' , width: '90%'}}>
+      <div className="grid-container" style={{ width: '90%', margin: '0 auto'}}>
         
-      <style>
-    {`
-      @media (min-width: 768px) {
-        div[style] {
-          grid-template-columns: repeat(3, 1fr); /* Three columns on larger screens */
-        }
-      }
-    `}
-  </style>
+   
         
         {/* Academic Literacy Test Card */}
         <div
+        className="grid-item"
           style={{
             cursor: 'pointer',
             minWidth: '200px',
@@ -73,7 +73,6 @@ const NBTPage: React.FC = () => {
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
           }}
         >
           <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', fontFamily: 'Arial' }}>The Academic Literacy Test (AL)</h2>
@@ -84,7 +83,9 @@ const NBTPage: React.FC = () => {
 
         {/* Quantitative Literacy Test Card */}
         <div
+        className="grid-item"
           style={{
+
             cursor: 'pointer',
             minWidth: '200px',
             padding: '16px',
@@ -94,7 +95,6 @@ const NBTPage: React.FC = () => {
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
           }}
         >
           <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', fontFamily: 'Arial' }}>The Quantitative Literacy Test (QL)</h2>
@@ -108,6 +108,7 @@ const NBTPage: React.FC = () => {
 
         {/* Mathematics Test Card */}
         <div
+        className="grid-item"
           style={{
             cursor: 'pointer',
             minWidth: '200px',
@@ -118,7 +119,6 @@ const NBTPage: React.FC = () => {
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
           }}
         >
           <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', fontFamily: 'Arial' }}>The Mathematics Test (ML)</h2>
@@ -127,7 +127,51 @@ const NBTPage: React.FC = () => {
           </p>
         </div>
       </div>
-      <button><strong>Book an NBT Test</strong></button>
+      <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        width: '100%', // Ensure the button container spans the screen width
+        padding: '16px',
+        boxSizing: 'border-box', // Include padding in width calculation
+      }}
+    >
+      <button
+        style={{
+          width: '100%', // Make the button span the full width of the container
+          maxWidth: '400px', // Optional: Limit the width for better readability
+          padding: '12px 16px',
+          backgroundColor: '#F3D4F5', // Light pink background
+          color: '#000', // Black text color
+          border: '1px solid #000', // Border color matches text
+          borderRadius: '16px', // Rounded corners
+          fontSize: '16px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          textAlign: 'center',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)', // Subtle shadow
+        }}
+        onClick={handleNBTClick} // Action on click
+      >
+        Book an NBT Test
+      </button>
+    </div>
+
+      <style>
+        {`
+          .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+
+          @media (min-width: 768px) {
+            .grid-container {
+              grid-template-columns: repeat(3, 1fr);
+            }
+          }
+        `}
+      </style>
     </div>
     
   );
