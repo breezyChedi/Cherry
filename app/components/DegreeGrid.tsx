@@ -11,6 +11,42 @@ import { auth, db } from '../firebaseConfig';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
+import MathIcon from '../icons/math.svg'
+import LangIcon from '../icons/earth.svg'
+import HisIcon from '../icons/hour.svg'
+import PhysIcon from '../icons/phys.svg'
+import BioIcon from '../icons/bio.svg'
+import DefaultIcon from '../icons/lang.svg'
+
+const subjectIconMap: { [key: string]: React.ElementType } = {
+  "Mathematics": MathIcon,
+  "English HL": LangIcon,
+  "History":HisIcon,
+  "Life Science":BioIcon,
+  "Physical Science":PhysIcon
+  // Add more subjects and their SVG paths here
+};
+
+
+const PinkCircleWithIcon = ({ Icon }: { Icon: React.ElementType }) => (
+  <div
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '30px',
+      height: '30px',
+      backgroundColor: '#EAC9F2',
+      borderRadius: '50%',
+      overflow: 'hidden',
+      position: 'relative',
+    }}
+  >
+    <Icon style={{ width: '24px', height: '24px' }} />
+  </div>
+);
+
+
 interface DegreeGridProps {
   degrees: Degree[];
   filterByEligibility: boolean; // Ignored for now
@@ -121,7 +157,8 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
   };
 
   const formatSubjectRequirements = (requirements: SubjectRequirement[]) => {
-    const processed: string[] = [];
+    //const processed: string[] = [];
+    const processed: JSX.Element[] = [];
     const orGroups: { [key: string]: { [subject: string]: number } } = {};
 
     requirements.forEach((req) => {
@@ -137,18 +174,81 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
         }
       } else {
         // Non-OR requirements are added directly
-        processed.push(`${req.subject}: ${req.minPoints}`);
+        processed.push(<div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }} key={req.subject}>
+          <PinkCircleWithIcon Icon={subjectIconMap[req.subject] || DefaultIcon} />
+          <span style={{ marginLeft: '8px' }}>
+  {`${req.subject}`}: <strong>{req.minPoints}</strong>
+</span>
+        </div>);
       }
     });
-
+/*
     // Process OR groups to create combined display strings
     Object.entries(orGroups).forEach(([subjects, subjectPoints]) => {
       const formattedSubjects = Object.entries(subjectPoints)
         .map(([subject, points]) => `${subject}: ${points}`)
-        .join(' OR ');
+        .join(' OR<br /> ');
 
       processed.push(formattedSubjects);
-    });
+    }
+  */
+ /*
+    Object.entries(orGroups).forEach(([subjects, subjectPoints]) => {
+      // Create JSX elements for the OR group
+      const formattedSubjects = Object.entries(subjectPoints).map(([subject, points]) => (
+        <div style={{ display: 'flex', alignItems: 'center', marginRight: '8px' }} key={subject}>
+          <PinkCircleWithIcon Icon={subjectIconMap[subject] || DefaultIcon} />
+          <span style={{ marginLeft: '8px' }}>{`${subject}: ${points}`}</span>
+        </div>
+      ));
+    
+      // Wrap the group in a container with 'OR' between subjects
+      processed.push(
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', marginBottom: '8px' }} key={subjects}>
+          {formattedSubjects.reduce((prev, curr, index) => [
+            ...prev,
+            curr,
+            index < formattedSubjects.length - 1 && (
+              <span key={`or-${index}`} style={{ margin: '0 8px', whiteSpace: 'nowrap' }}>OR<br/></span>
+            ),
+          ], [])}
+        </div>
+      );
+    }*/
+
+      Object.entries(orGroups).forEach(([subjects, subjectPoints]) => {
+        // Get the first subject in the group to decide the icon
+       // const firstSubject = Object.keys(subjectPoints)[0];
+       // const Icon = subjectIconMap[firstSubject] || DefaultIcon;
+      
+        // Create JSX elements for the OR group
+        const formattedSubjects = Object.entries(subjectPoints).map(([subject, points]) => {
+          const Icon = subjectIconMap[subject] || DefaultIcon;
+          return (
+          <div style={{ display: 'flex', alignItems: 'center', marginRight: '8px' }} key={subject}>
+            {/* Use the same icon for the entire group */}
+            <PinkCircleWithIcon Icon={Icon} />
+            <span style={{ marginLeft: '8px' }}>{`${subject}`}: <strong>{`${points}`}</strong></span>
+          </div>
+        );});
+      
+        // Wrap the group in a container with 'OR' between subjects
+        processed.push(
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', marginBottom: '8px' }} key={subjects}>
+            {formattedSubjects.reduce((prev, curr, index) => [
+              ...prev,
+              curr,
+              index < formattedSubjects.length - 1 && (
+                <span key={`or-${index}`} style={{ margin: '0 8px', whiteSpace: 'nowrap' }}>OR<br/></span>
+              ),
+            ], [])}
+          </div>
+        );
+      }
+      
+    
+
+  );
 
     return processed;
   };
@@ -182,11 +282,11 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
               {/* Display Point Requirement */}
               {degree.pointRequirement !== null ? (
                 <Typography variant="body2" color="textSecondary">
-                  <strong>Minimum APS Score:</strong> {degree.pointRequirement}
+                  <strong>Minimum Points:</strong> {degree.pointRequirement}
                 </Typography>
               ) : (
                 <Typography variant="body2" color="textSecondary">
-                  <strong>Minimum APS Score:</strong> N/A
+                  <strong>Minimum Points:</strong> N/A
                 </Typography>
               )}
               
