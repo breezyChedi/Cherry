@@ -37,18 +37,18 @@ const NBTPage: React.FC = () => {
         <p style={{ color: '#555', fontFamily: 'Arial' }}>There are 3 tests that candidates write:</p>
         <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', marginTop: '16px' }}>
             <div style={{display:'flex'}}>
-          <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold'}}>AL</div>
+          <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold', flexShrink: 0}}>AL</div>
           <p>&nbsp;Academic Literacy</p>
           </div>
           
           
           <div style={{display:'flex'}}>
-          <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold'}}>QL</div>
+          <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold', flexShrink: 0}}>QL</div>
           <p>&nbsp;Quantitative Literacy</p>
           </div>
 
           <div style={{display:'flex'}}>
-          <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold'}}>MAT</div>
+          <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold', flexShrink: 0}}>MAT</div>
           <p>&nbsp;Mathematics</p>
          </div>
        

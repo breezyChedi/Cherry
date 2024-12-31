@@ -131,7 +131,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 icon={<Page2Icon style={{ width: 24, height: 24 }} />}
               />
               <BottomNavigationAction
-                label="Opportunities"
+                label="Info"
                 value="/info"
                 icon={<Page3Icon style={{ width: 24, height: 24 }} />}
               />
