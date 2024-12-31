@@ -277,7 +277,7 @@ const DegreeGrid: React.FC<DegreeGridProps> = ({ degrees, filterByEligibility, f
   return (
     <Grid container spacing={2} style={{ marginTop: '16px', marginBottom: '48px' }}>
       {filteredDegrees.map((degree) => (
-        <Grid item xs={expandedCard === degree.id.toString() ? 12 : 6} sm={expandedCard === degree.id.toString() ? 12 : 6} md={expandedCard === degree.id.toString() ? 12 : 4} key={degree.id} style={{
+        <Grid item xs={expandedCard === degree.id.toString() ? 12 : 12} sm={expandedCard === degree.id.toString() ? 12 : 6} md={expandedCard === degree.id.toString() ? 12 : 4} key={degree.id} style={{
           display: 'flex',
           flexDirection: 'column',
           marginBottom: expandedCard === degree.id.toString() ? '20px' : '0',
