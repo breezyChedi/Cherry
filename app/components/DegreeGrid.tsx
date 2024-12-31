@@ -17,13 +17,33 @@ import HisIcon from '../icons/hour.svg'
 import PhysIcon from '../icons/phys.svg'
 import BioIcon from '../icons/bio.svg'
 import DefaultIcon from '../icons/lang.svg'
+import matLitIcon from '../icons/matLit.svg'
+import geoIcon from '../icons/geo.svg'
+import dramaIcon from '../icons/drama.svg'
+import artIcon from '../icons/art.svg'
+import codeIcon from '../icons/code.svg'
+import agriIcon from '../icons/agri.svg'
+import monIcon from '../icons/money.svg'
 
 const subjectIconMap: { [key: string]: React.ElementType } = {
   "Mathematics": MathIcon,
   "English HL": LangIcon,
   "History":HisIcon,
   "Life Science":BioIcon,
-  "Physical Science":PhysIcon
+  "Physical Science":PhysIcon,
+  "Mathematical Literacy":matLitIcon,
+  "Geography":geoIcon,
+  "Language HL/FAL": LangIcon,
+  "Technical Mathematics": matLitIcon,
+  "Visual Arts": dramaIcon,
+  "Dramatic Arts": artIcon,
+  "Agricultural Science": agriIcon,
+  "Information Technology":  codeIcon,
+  "Economics": monIcon,
+  "Accounting": monIcon,
+  "Business Studies": monIcon
+
+  
   // Add more subjects and their SVG paths here
 };
 
