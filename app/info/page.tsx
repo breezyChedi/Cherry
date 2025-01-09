@@ -169,18 +169,18 @@ const NBTPage: React.FC = () => {
         <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', marginTop: '16px' }}>
             <div style={{display:'flex'}}>
           <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold', flexShrink: 0}}>AL</div>
-          <p style={{ fontSize: '12px' }}>&nbsp;Academic Literacy</p>
+          <p style={{ fontSize: '13px' }}>&nbsp;Academic Literacy</p>
           </div>
           
           
           <div style={{display:'flex'}}>
           <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold', flexShrink: 0}}>QL</div>
-          <p style={{ fontSize: '12px' }}>&nbsp;Quantitative Literacy</p>
+          <p style={{ fontSize: '13px' }}>&nbsp;Quantitative Literacy</p>
           </div>
 
           <div style={{display:'flex'}}>
           <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold', flexShrink: 0}}>MAT</div>
-          <p style={{ fontSize: '12px' }}>&nbsp;Mathematics</p>
+          <p style={{ fontSize: '13px' }}>&nbsp;Mathematics</p>
          </div>
        
         </div>
@@ -252,7 +252,7 @@ const NBTPage: React.FC = () => {
             flexDirection: 'column',
           }}
         >
-          <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', fontFamily: 'Arial' }}>The Mathematics Test (ML)</h2>
+          <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', fontFamily: 'Arial' }}>The Mathematics Test (MAT)</h2>
           <p style={{ color: '#555', fontFamily: 'Arial' }}>
             The Mathematics Test is a 3-hour exam in which students are tested on their ability to relate to mathematical concepts formally regarded as part of the secondary school curriculum.
           </p>
