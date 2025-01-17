@@ -101,7 +101,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   marginRight: '56px',
                 }}
               >
-                Cherry Web App
+                Cherry
               </Typography>
 
               {/* Right-side Icon */}
