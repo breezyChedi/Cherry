@@ -69,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   };
 
   const handleCherryClick = () => {
-    router.push('home.cherry.org.za'); // Redirects to the external site
+    router.push('https://home.cherry.org.za'); // Redirects to the external site
   };
 
   return (
