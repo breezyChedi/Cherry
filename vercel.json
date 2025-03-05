@@ -2,17 +2,7 @@
   "rewrites": [
     {
       "source": "/home(.*)",
-      "destination": "https://home.cherry.org.za$1"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/home(.*)",
-      "headers": [
-        { "key": "Host", "value": "home.cherry.org.za" },
-        { "key": "Referer", "value": "https://home.cherry.org.za/" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
-      ]
+      "destination": "/api/edge-proxy$1"
     }
   ]
 }
