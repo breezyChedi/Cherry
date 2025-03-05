@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/home",
+      "destination": "https://host.cherry.org.za"
+    }
+  ]
+}
