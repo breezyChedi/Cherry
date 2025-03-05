@@ -26,18 +26,37 @@ export async function GET(request: NextRequest) {
         // If it's an HTML response, modify the asset URLs
         const contentType = response.headers.get('content-type')
         if (contentType && contentType.includes('text/html')) {
-            const text = await response.text()
-            const modifiedText = text.replace(
-                /(src|href)=["']?\/_assets\//g,
-                '$1="https://home.cherry.org.za/_assets/'
+            let text = await response.text()
+            
+            // Replace any references to www.cherry.org.za with home.cherry.org.za
+            text = text.replace(/www\.cherry\.org\.za/g, 'home.cherry.org.za')
+            
+            // Replace relative asset paths with absolute paths
+            text = text.replace(
+                /(src|href)=["'](\/_assets\/[^"']*?)["']/g,
+                '$1="https://home.cherry.org.za$2"'
             )
 
-            return new Response(modifiedText, {
+            // Handle cases where there might not be quotes around the URL
+            text = text.replace(
+                /(src|href)=(\/_assets\/[^\s>]*)/g,
+                '$1="https://home.cherry.org.za$2"'
+            )
+
+            return new Response(text, {
                 headers: {
                     'Content-Type': 'text/html',
                     'Cache-Control': 'no-cache'
                 }
             })
+        }
+
+        // For asset requests, redirect to home.cherry.org.za
+        if (request.url.includes('/_assets/')) {
+            return Response.redirect(
+                request.url.replace('www.cherry.org.za', 'home.cherry.org.za'),
+                301
+            )
         }
 
         // For non-HTML responses, proxy them directly
