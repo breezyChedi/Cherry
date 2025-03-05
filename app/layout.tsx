@@ -75,7 +75,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <title>Calculator App</title>
+        <title>Cherry</title>
+        <meta name="google-site-verification" content="bLl3duV6gX_tPcCXtnjOB9X-hyCMm4DG3MqeTEPjRZ0" />
       </head>
       <body>
         <ThemeProvider theme={theme}>
