@@ -25,6 +25,8 @@ import {
 import { doc, setDoc } from 'firebase/firestore';
 import { Router } from 'next/router';
 
+
+
 const ProfilePage: React.FC = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState(0);

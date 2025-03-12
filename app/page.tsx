@@ -11,7 +11,7 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/calculator');
+    router.replace('/home');
   }, [router]);
 
   return null; // Or a loading indicator

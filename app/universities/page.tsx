@@ -6,6 +6,8 @@ import driver from '../lib/neo4j';
 import UniversitiesPageContent from '../components/UniversitiesPageContent';
 import { UniversityWithFaculties, Faculty } from '../types';
 
+
+
 const UniversitiesPage = async () => {
   const session = driver.session();
 

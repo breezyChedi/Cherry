@@ -1,7 +1,7 @@
 // app/calculator/page.tsx
 
 'use client';
-
+import Head from 'next/head'
 import React, { useState, useEffect } from 'react';
 import {
     Snackbar,
@@ -48,6 +48,8 @@ const allSubjects = [
     'Computing and Technology',
     'Dramatic Arts',
 ];
+
+
 
 const CalculatorPage: React.FC = () => {
 
@@ -214,12 +216,14 @@ const CalculatorPage: React.FC = () => {
             setErrorOpen(true);
         }
     };
-/*   <Typography variant="h6" gutterBottom>
-                Subject Selection
-            </Typography> */
+    /*   <Typography variant="h6" gutterBottom>
+                    Subject Selection
+                </Typography> */
     return (
+       
+
         <div style={{ padding: '16px' }}>
-          
+
 
             <Grid container spacing={2}>
                 {/* Subject 1 */}
@@ -437,45 +441,48 @@ const CalculatorPage: React.FC = () => {
                     Calculate APS
                 </Button>
             </div>
-            <div style={{ marginTop: '16px', marginLeft: '5%', marginRight: '5%' }}> 
-             <Grid container spacing={2}>
-                <Grid item xs={4} sm={4}>
-                    <Tooltip title="Academic Literacy">
-                        <TextField
-                            fullWidth
-                            label="NBT (AL)"
-                            value={nbtAL}
-                            onChange={(e) => setNbtAL(e.target.value)}
-                            type="number"
-                        /></Tooltip>
+            <div style={{ marginTop: '16px', marginLeft: '5%', marginRight: '5%' }}>
+                <Grid container spacing={2}>
+                    <Grid item xs={4} sm={4}>
+                        <Tooltip title="Academic Literacy">
+                            <TextField
+                                fullWidth
+                                label="NBT (AL)"
+                                value={nbtAL}
+                                onChange={(e) => setNbtAL(e.target.value)}
+                                type="number"
+                            /></Tooltip>
+                    </Grid>
+                    <Grid item xs={4} sm={4}>
+                        <Tooltip title="Quantitative Literacy">
+                            <TextField
+                                fullWidth
+                                label="NBT (QL)"
+                                value={nbtQL}
+                                onChange={(e) => setNbtQL(e.target.value)}
+                                type="number"
+                            /></Tooltip>
+                    </Grid>
+                    <Grid item xs={4} sm={4}>
+                        <Tooltip title="Mathematics">
+                            <TextField
+                                fullWidth
+                                label="NBT (MAT)"
+                                value={nbtMAT}
+                                onChange={(e) => setNbtMAT(e.target.value)}
+                                type="number"
+                            /></Tooltip>
+                    </Grid>
                 </Grid>
-                <Grid item xs={4} sm={4}>
-                    <Tooltip title="Quantitative Literacy">
-                        <TextField
-                            fullWidth
-                            label="NBT (QL)"
-                            value={nbtQL}
-                            onChange={(e) => setNbtQL(e.target.value)}
-                            type="number"
-                        /></Tooltip>
-                </Grid>
-                <Grid item xs={4} sm={4}>
-                    <Tooltip title="Mathematics">
-                        <TextField
-                            fullWidth
-                            label="NBT (MAT)"
-                            value={nbtMAT}
-                            onChange={(e) => setNbtMAT(e.target.value)}
-                            type="number"
-                        /></Tooltip>
-                </Grid>
-            </Grid>
-                    </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', marginBottom:'32px'}}>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', marginBottom: '32px' }}>
                 <Button
                     variant="contained"
                     color="primary"
-                    href="https://nbtests.uct.ac.za/"
+                    onClick={() => {
+                        // Add rel and target attributes programmatically
+                        window.open('https://nbtests.uct.ac.za/', '_blank', 'noopener,noreferrer');
+                    }}
                     style={{ marginTop: '16px', marginRight: '5px', marginLeft: '5%', justifyContent: 'center', textAlign: 'center', width: '40%', borderRadius: '16px' }}
                 >
                     Book a NBT test
@@ -491,7 +498,7 @@ const CalculatorPage: React.FC = () => {
             </div>
 
 
-           
+
 
             {/* Error Snackbar */}
             <Snackbar
