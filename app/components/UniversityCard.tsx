@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
+import Image from 'next/image';
 
 interface University {
   id: number;
@@ -46,11 +47,14 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, isSelected,
         justifyContent: 'center',
         flexGrow: 1,
         height: '120px', // Fixed height for logo container
+        position: 'relative',
       }}
     >
-      <img
+      <Image
         src={university.logoUrl}
         alt={`${university.name} Logo`}
+        width={100}
+        height={100}
         style={{ 
           maxWidth: '100px', 
           maxHeight: '100px', 

@@ -2,11 +2,8 @@
 
 import React from 'react';
 import { Box, Typography, Paper, List, ListItem, ListItemText, Button } from '@mui/material';
-import { useRouter } from 'next/navigation';
 
 const AccountDeletionPage: React.FC = () => {
-  const router = useRouter();
-
   const handleContactClick = () => {
     // Replace with your actual contact email
     window.location.href = 'mailto:info@cherry.org.za?subject=Account%20Deletion%20Request';

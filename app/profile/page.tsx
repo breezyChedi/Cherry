@@ -24,7 +24,6 @@ import {
   InputLabel,
   useMediaQuery,
   useTheme,
-  FormHelperText,
 } from '@mui/material';
 import Flag from 'react-world-flags';
 import { auth, db } from '../firebaseConfig';

@@ -1,7 +1,6 @@
 // app/calculator/page.tsx
 
 'use client';
-import Head from 'next/head'
 import React, { useState, useEffect } from 'react';
 import {
     Snackbar,
@@ -14,7 +13,6 @@ import {
     Grid,
     CircularProgress,
     Tooltip,
-    SvgIcon,
     Container,
     Box,
     Paper,

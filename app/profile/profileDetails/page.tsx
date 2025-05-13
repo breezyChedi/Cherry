@@ -28,7 +28,6 @@ import {
 import Flag from 'react-world-flags';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SchoolIcon from '@mui/icons-material/School';
-import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import FlagIcon from '@mui/icons-material/Flag';
@@ -36,11 +35,6 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import WcIcon from '@mui/icons-material/Wc';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import firebase from 'firebase/compat/app';
-
-interface Subject {
-  name: string;
-  mark: string;
-}
 
 // Define the profile structure for type safety
 interface Profile {
@@ -65,7 +59,6 @@ interface UserProfile {
 const ProfileDetailsPage: React.FC = () => {
   const router = useRouter();
   const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);

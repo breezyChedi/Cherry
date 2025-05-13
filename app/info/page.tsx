@@ -324,7 +324,7 @@ const NBTPage: React.FC = () => {
               National Senior Certificate
             </Typography>
             <Typography variant="body1" paragraph color="text.secondary">
-              The National Senior Certificate (NSC) examinations commonly referred to as "matric" has become an annual event of major public significance. It not only signifies the culmination of twelve years of formal schooling but the NSC examinations is a barometer of the health of the education system.
+              The National Senior Certificate (NSC) examinations commonly referred to as &ldquo;matric&rdquo; has become an annual event of major public significance. It not only signifies the culmination of twelve years of formal schooling but the NSC examinations is a barometer of the health of the education system.
             </Typography>
           </Grid>
         </Grid>
@@ -466,7 +466,7 @@ const NBTPage: React.FC = () => {
                   color="text.secondary"
                   sx={{ mb: 3 }}
                 >
-              {card.description}
+                  {card.description}
                 </Typography>
               </Box>
               <Box sx={{ p: 2, textAlign: 'center' }}>

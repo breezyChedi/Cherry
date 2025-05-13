@@ -22,11 +22,9 @@ import {
   Divider,
   Box,
   useMediaQuery,
-  Tooltip,
   Button,
 } from '@mui/material';
 
-import { Metadata } from 'next'
 import { purple } from '@mui/material/colors';
 
 // Icons

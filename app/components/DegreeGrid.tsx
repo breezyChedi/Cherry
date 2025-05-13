@@ -8,7 +8,7 @@ import { SubjectRequirement } from '../types';
 
 import { filterDegreesByEligibility } from '../utils/eligibility';
 import { auth, db } from '../firebaseConfig';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
 import MathIcon from '../icons/math.svg'

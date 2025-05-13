@@ -21,3 +21,5 @@ interface NavItemProps {
     </button>
   );
   
+  export default NavItem;
+  

@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 // app/page.tsx
 
 'use client';

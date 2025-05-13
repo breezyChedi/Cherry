@@ -1,7 +1,7 @@
 // app/components/FacultySpinner.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Faculty, Degree } from '../types';
 import DegreeGrid from './DegreeGrid';
 import { CircularProgress, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
@@ -18,7 +18,7 @@ const FacultySpinner: React.FC<FacultySpinnerProps> = ({ faculties, filterByElig
 
 
   const handleFacultyChange = async (event: SelectChangeEvent<number>) => {
-    const facultyId = Number(event.target.value); // Ensure it’s a number
+    const facultyId = Number(event.target.value); // Ensure it's a number
     setSelectedFacultyId(facultyId);
 
     // Fetch degrees for the selected faculty
