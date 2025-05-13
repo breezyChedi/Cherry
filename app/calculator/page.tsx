@@ -15,10 +15,14 @@ import {
     CircularProgress,
     Tooltip,
     SvgIcon,
+    Container,
+    Box,
+    Paper,
+    useMediaQuery,
+    useTheme,
 } from '@mui/material';
 import Image from 'next/image';
 import cherryLogoPng from '../icons/cherryLogoPng.png';
-
 
 import { useRouter } from 'next/navigation';
 import { auth, db } from '../firebaseConfig'; // Import Firebase Auth and Firestore
@@ -49,11 +53,10 @@ const allSubjects = [
     'Dramatic Arts',
 ];
 
-
-
 const CalculatorPage: React.FC = () => {
-
-
+    const theme = useTheme();
+    const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+    
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     // State variables for subjects and marks
@@ -79,7 +82,6 @@ const CalculatorPage: React.FC = () => {
 
     const [errorOpen, setErrorOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-
 
     // Options for spinners 4-6
     const [options4, setOptions4] = useState<string[]>(allSubjects);
@@ -163,13 +165,7 @@ const CalculatorPage: React.FC = () => {
 
         // Update the state
         setApsScore(totalAPS);
-
-        // Optionally, save marks and subjects to localStorage
-        //saveDataToLocalStorage();
-
-
     };
-
 
     const handleSaveToProfile = async () => {
         if (!isAuthenticated) {
@@ -216,289 +212,424 @@ const CalculatorPage: React.FC = () => {
             setErrorOpen(true);
         }
     };
-    /*   <Typography variant="h6" gutterBottom>
-                    Subject Selection
-                </Typography> */
+
     return (
-       
-
-        <div style={{ padding: '16px' }}>
-
-
-            <Grid container spacing={2}>
-                {/* Subject 1 */}
-                <Grid item xs={8} sm={8}>
-                    <Select
-                        fullWidth
-                        value={subject1}
-                        onChange={(e) => setSubject1(e.target.value as string)}
-                        displayEmpty
-                    >
-                        <MenuItem value="" disabled>
-                            Select Subject
-                        </MenuItem>
-                        {mathSubjects.map((subject) => (
-                            <MenuItem key={subject} value={subject}>
-                                {subject}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </Grid>
-                <Grid item xs={4} sm={4}>
-                    <TextField
-                        fullWidth
-                        label="Enter %"
-                        value={mark1}
-                        onChange={(e) => setMark1(e.target.value)}
-                        type="number"
-                    />
-                </Grid>
-
-                {/* Subject 2 */}
-                <Grid item xs={8} sm={8}>
-                    <Select
-                        fullWidth
-                        value={subject2}
-                        onChange={(e) => setSubject2(e.target.value as string)}
-                        displayEmpty
-                    >
-                        <MenuItem value="" disabled>
-                            Select Subject
-                        </MenuItem>
-                        {homeLanguages.map((subject) => (
-                            <MenuItem key={subject} value={subject}>
-                                {subject}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </Grid>
-                <Grid item xs={4} sm={4}>
-                    <TextField
-                        fullWidth
-                        label="Enter %"
-                        value={mark2}
-                        onChange={(e) => setMark2(e.target.value)}
-                        type="number"
-                    />
-                </Grid>
-
-                {/* Subject 3 */}
-                <Grid item xs={8} sm={8}>
-                    <Select
-                        fullWidth
-                        value={subject3}
-                        onChange={(e) => setSubject3(e.target.value as string)}
-                        displayEmpty
-                    >
-                        <MenuItem value="" disabled>
-                            Select Subject
-                        </MenuItem>
-                        {additionalLanguages.map((subject) => (
-                            <MenuItem key={subject} value={subject}>
-                                {subject}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </Grid>
-                <Grid item xs={4} sm={4}>
-                    <TextField
-                        fullWidth
-                        label="Enter %"
-                        value={mark3}
-                        onChange={(e) => setMark3(e.target.value)}
-                        type="number"
-                    />
-                </Grid>
-
-                {/* Subject 4 */}
-                <Grid item xs={8} sm={8}>
-                    <Select
-                        fullWidth
-                        value={subject4}
-                        onChange={(e) => setSubject4(e.target.value as string)}
-                        displayEmpty
-                    >
-                        <MenuItem value="" disabled>
-                            Select Subject
-                        </MenuItem>
-                        {options4.map((subject) => (
-                            <MenuItem key={subject} value={subject}>
-                                {subject}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </Grid>
-                <Grid item xs={4} sm={4}>
-                    <TextField
-                        fullWidth
-                        label="Enter %"
-                        value={mark4}
-                        onChange={(e) => setMark4(e.target.value)}
-                        type="number"
-                    />
-                </Grid>
-
-                {/* Subject 5 */}
-                <Grid item xs={8} sm={8}>
-                    <Select
-                        fullWidth
-                        value={subject5}
-                        onChange={(e) => setSubject5(e.target.value as string)}
-                        displayEmpty
-                    >
-                        <MenuItem value="" disabled>
-                            Select Subject
-                        </MenuItem>
-                        {options5.map((subject) => (
-                            <MenuItem key={subject} value={subject}>
-                                {subject}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </Grid>
-                <Grid item xs={4} sm={4}>
-                    <TextField
-                        fullWidth
-                        label="Enter %"
-                        value={mark5}
-                        onChange={(e) => setMark5(e.target.value)}
-                        type="number"
-                    />
-                </Grid>
-
-                {/* Subject 6 */}
-                <Grid item xs={8} sm={8}>
-                    <Select
-                        fullWidth
-                        value={subject6}
-                        onChange={(e) => setSubject6(e.target.value as string)}
-                        displayEmpty
-                    >
-                        <MenuItem value="" disabled>
-                            Select Subject
-                        </MenuItem>
-                        {options6.map((subject) => (
-                            <MenuItem key={subject} value={subject}>
-                                {subject}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </Grid>
-                <Grid item xs={4} sm={4}>
-                    <TextField
-                        fullWidth
-                        label="Enter %"
-                        value={mark6}
-                        onChange={(e) => setMark6(e.target.value)}
-                        type="number"
-                    />
-                </Grid>
-            </Grid>
-            <div
-                style={{
-                    marginTop: '24px',
-                    display: 'flex',           // Flexbox for centering the container
-                    flexDirection: 'column',   // Stack items vertically
-                    alignItems: 'center',      // Center horizontally
+        <Container 
+            maxWidth="lg" 
+            sx={{ 
+                py: 4,
+                backgroundColor: 'white' 
+            }}
+        >
+            <Paper 
+                elevation={3} 
+                sx={{ 
+                    p: 3, 
+                    borderRadius: 2,
+                    backgroundColor: '#f8f9fa',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
                 }}
             >
-                {/* Circular Progress Bar */}
-                <div style={{
-                    marginTop: '24px', textAlign: 'center',
-                    position: 'relative', display: 'inline-block',
-                }}>
-                    <CircularProgress
-                        variant="determinate"
-                        value={(apsScoreLoc / 42) * 100}
-                        size={100}
-                        thickness={4}
-                        color='secondary'
-                    />
-                    {/* Center Icon */}
-                    <div
-                        style={{
-                            position: 'absolute',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)', // Centers the image
+                <Typography variant="h4" gutterBottom align="center" color="primary" sx={{ mb: 4, fontWeight: 'bold' }}>
+                    APS Calculator
+                </Typography>
+                
+                <Box sx={{ maxWidth: isDesktop ? '80%' : '100%', mx: 'auto' }}>
+                    <Grid container spacing={3}>
+                        {/* Subject Groups - Two columns on desktop, one on mobile */}
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="h6" gutterBottom color="secondary">
+                                Core Subjects
+                            </Typography>
+                            
+                            {/* Subject 1 */}
+                            <Grid container spacing={2} mb={2}>
+                                <Grid item xs={8}>
+                                    <Select
+                                        fullWidth
+                                        value={subject1}
+                                        onChange={(e) => setSubject1(e.target.value as string)}
+                                        displayEmpty
+                                        size="small"
+                                    >
+                                        <MenuItem value="" disabled>
+                                            Select Mathematics
+                                        </MenuItem>
+                                        {mathSubjects.map((subject) => (
+                                            <MenuItem key={subject} value={subject}>
+                                                {subject}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Mark %"
+                                        value={mark1}
+                                        onChange={(e) => setMark1(e.target.value)}
+                                        type="number"
+                                        size="small"
+                                    />
+                                </Grid>
+                            </Grid>
+
+                            {/* Subject 2 */}
+                            <Grid container spacing={2} mb={2}>
+                                <Grid item xs={8}>
+                                    <Select
+                                        fullWidth
+                                        value={subject2}
+                                        onChange={(e) => setSubject2(e.target.value as string)}
+                                        displayEmpty
+                                        size="small"
+                                    >
+                                        <MenuItem value="" disabled>
+                                            Select Home Language
+                                        </MenuItem>
+                                        {homeLanguages.map((subject) => (
+                                            <MenuItem key={subject} value={subject}>
+                                                {subject}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Mark %"
+                                        value={mark2}
+                                        onChange={(e) => setMark2(e.target.value)}
+                                        type="number"
+                                        size="small"
+                                    />
+                                </Grid>
+                            </Grid>
+
+                            {/* Subject 3 */}
+                            <Grid container spacing={2} mb={2}>
+                                <Grid item xs={8}>
+                                    <Select
+                                        fullWidth
+                                        value={subject3}
+                                        onChange={(e) => setSubject3(e.target.value as string)}
+                                        displayEmpty
+                                        size="small"
+                                    >
+                                        <MenuItem value="" disabled>
+                                            Select Additional Language
+                                        </MenuItem>
+                                        {additionalLanguages.map((subject) => (
+                                            <MenuItem key={subject} value={subject}>
+                                                {subject}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Mark %"
+                                        value={mark3}
+                                        onChange={(e) => setMark3(e.target.value)}
+                                        type="number"
+                                        size="small"
+                                    />
+                                </Grid>
+                            </Grid>
+                        </Grid>
+
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="h6" gutterBottom color="secondary">
+                                Elective Subjects
+                            </Typography>
+                            
+                            {/* Subject 4 */}
+                            <Grid container spacing={2} mb={2}>
+                                <Grid item xs={8}>
+                                    <Select
+                                        fullWidth
+                                        value={subject4}
+                                        onChange={(e) => setSubject4(e.target.value as string)}
+                                        displayEmpty
+                                        size="small"
+                                    >
+                                        <MenuItem value="" disabled>
+                                            Select Subject 4
+                                        </MenuItem>
+                                        {options4.map((subject) => (
+                                            <MenuItem key={subject} value={subject}>
+                                                {subject}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Mark %"
+                                        value={mark4}
+                                        onChange={(e) => setMark4(e.target.value)}
+                                        type="number"
+                                        size="small"
+                                    />
+                                </Grid>
+                            </Grid>
+
+                            {/* Subject 5 */}
+                            <Grid container spacing={2} mb={2}>
+                                <Grid item xs={8}>
+                                    <Select
+                                        fullWidth
+                                        value={subject5}
+                                        onChange={(e) => setSubject5(e.target.value as string)}
+                                        displayEmpty
+                                        size="small"
+                                    >
+                                        <MenuItem value="" disabled>
+                                            Select Subject 5
+                                        </MenuItem>
+                                        {options5.map((subject) => (
+                                            <MenuItem key={subject} value={subject}>
+                                                {subject}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Mark %"
+                                        value={mark5}
+                                        onChange={(e) => setMark5(e.target.value)}
+                                        type="number"
+                                        size="small"
+                                    />
+                                </Grid>
+                            </Grid>
+
+                            {/* Subject 6 */}
+                            <Grid container spacing={2} mb={2}>
+                                <Grid item xs={8}>
+                                    <Select
+                                        fullWidth
+                                        value={subject6}
+                                        onChange={(e) => setSubject6(e.target.value as string)}
+                                        displayEmpty
+                                        size="small"
+                                    >
+                                        <MenuItem value="" disabled>
+                                            Select Subject 6
+                                        </MenuItem>
+                                        {options6.map((subject) => (
+                                            <MenuItem key={subject} value={subject}>
+                                                {subject}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Mark %"
+                                        value={mark6}
+                                        onChange={(e) => setMark6(e.target.value)}
+                                        type="number"
+                                        size="small"
+                                    />
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+                    {/* APS Score Display */}
+                    <Box 
+                        sx={{
+                            mt: 4,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
                         }}
                     >
-                        <Image src={cherryLogoPng} alt="Center Icon" width={60} height={60} />
-                    </div>
-                </div>
-                <Typography variant="h6" style={{ marginTop: '8px', marginBottom: '32px' }}>
-                    APS Score: {apsScoreLoc}
-                </Typography>
-            </div>
+                        <Box 
+                            sx={{ 
+                                position: 'relative', 
+                                display: 'inline-block',
+                                textAlign: 'center',
+                                width: 140, 
+                                height: 140,
+                            }}
+                        >
+                            <CircularProgress
+                                variant="determinate"
+                                value={(apsScoreLoc / 42) * 100}
+                                size={140}
+                                thickness={4}
+                                sx={{ 
+                                    color: '#e718a7',
+                                    position: 'absolute',
+                                    left: 0,
+                                }}
+                            />
+                            <Box
+                                sx={{
+                                    top: 0,
+                                    left: 0,
+                                    bottom: 0,
+                                    right: 0,
+                                    position: 'absolute',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexDirection: 'column',
+                                }}
+                            >
+                                <Image 
+                                    src={cherryLogoPng} 
+                                    alt="Cherry Logo" 
+                                    width={50} 
+                                    height={50} 
+                                />
+                                <Typography 
+                                    variant="h4" 
+                                    sx={{ 
+                                        color: '#8932aa',
+                                        fontWeight: 'bold', 
+                                        mt: 1,
+                                    }}
+                                >
+                                    {apsScoreLoc}
+                                </Typography>
+                                <Typography 
+                                    variant="caption" 
+                                    sx={{ 
+                                        color: '#666',
+                                        fontSize: '10px',
+                                    }}
+                                >
+                                    APS Score
+                                </Typography>
+                            </Box>
+                        </Box>
+                    </Box>
 
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={calculateAndDisplayAPS}
-                    style={{ marginTop: '16px', width: '90%', borderRadius: '16px' }}
-                >
-                    Calculate APS
-                </Button>
-            </div>
-            <div style={{ marginTop: '16px', marginLeft: '5%', marginRight: '5%' }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={4} sm={4}>
-                        <Tooltip title="Academic Literacy">
-                            <TextField
-                                fullWidth
-                                label="NBT (AL)"
-                                value={nbtAL}
-                                onChange={(e) => setNbtAL(e.target.value)}
-                                type="number"
-                            /></Tooltip>
-                    </Grid>
-                    <Grid item xs={4} sm={4}>
-                        <Tooltip title="Quantitative Literacy">
-                            <TextField
-                                fullWidth
-                                label="NBT (QL)"
-                                value={nbtQL}
-                                onChange={(e) => setNbtQL(e.target.value)}
-                                type="number"
-                            /></Tooltip>
-                    </Grid>
-                    <Grid item xs={4} sm={4}>
-                        <Tooltip title="Mathematics">
-                            <TextField
-                                fullWidth
-                                label="NBT (MAT)"
-                                value={nbtMAT}
-                                onChange={(e) => setNbtMAT(e.target.value)}
-                                type="number"
-                            /></Tooltip>
-                    </Grid>
-                </Grid>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', marginBottom: '32px' }}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => {
-                        // Add rel and target attributes programmatically
-                        window.open('https://nbtests.uct.ac.za/', '_blank', 'noopener,noreferrer');
-                    }}
-                    style={{ marginTop: '16px', marginRight: '5px', marginLeft: '5%', justifyContent: 'center', textAlign: 'center', width: '40%', borderRadius: '16px' }}
-                >
-                    Book a NBT test
-                </Button>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSaveToProfile}
-                    style={{ marginTop: '16px', marginRight: '5%', marginLeft: '5px', justifyContent: 'center', textAlign: 'center', width: '40%', borderRadius: '16px' }}
-                >
-                    Save to Profile
-                </Button>
-            </div>
+                    {/* Calculate Button */}
+                    <Box sx={{ mt: 4, textAlign: 'center' }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={calculateAndDisplayAPS}
+                            size="large"
+                            sx={{ 
+                                px: 4, 
+                                py: 1.5, 
+                                borderRadius: 25, 
+                                fontWeight: 'bold',
+                                bgcolor: '#8932aa',
+                                '&:hover': {
+                                    bgcolor: '#6b2587',
+                                }
+                            }}
+                        >
+                            CALCULATE APS
+                        </Button>
+                    </Box>
 
+                    {/* NBT Section */}
+                    <Box sx={{ mt: 5 }}>
+                        <Typography variant="h6" gutterBottom color="secondary" align="center">
+                            National Benchmark Test (NBT) Scores
+                        </Typography>
+                        <Grid container spacing={3} justifyContent="center">
+                            <Grid item xs={12} sm={4}>
+                                <Tooltip title="Academic Literacy" placement="top">
+                                    <TextField
+                                        fullWidth
+                                        label="NBT Academic Literacy"
+                                        value={nbtAL}
+                                        onChange={(e) => setNbtAL(e.target.value)}
+                                        type="number"
+                                        size="small"
+                                        InputProps={{
+                                            startAdornment: <Box component="span" sx={{ mr: 1, color: 'primary.main' }}>AL</Box>,
+                                        }}
+                                    />
+                                </Tooltip>
+                            </Grid>
+                            <Grid item xs={12} sm={4}>
+                                <Tooltip title="Quantitative Literacy" placement="top">
+                                    <TextField
+                                        fullWidth
+                                        label="NBT Quantitative Literacy"
+                                        value={nbtQL}
+                                        onChange={(e) => setNbtQL(e.target.value)}
+                                        type="number"
+                                        size="small"
+                                        InputProps={{
+                                            startAdornment: <Box component="span" sx={{ mr: 1, color: 'primary.main' }}>QL</Box>,
+                                        }}
+                                    />
+                                </Tooltip>
+                            </Grid>
+                            <Grid item xs={12} sm={4}>
+                                <Tooltip title="Mathematics" placement="top">
+                                    <TextField
+                                        fullWidth
+                                        label="NBT Mathematics"
+                                        value={nbtMAT}
+                                        onChange={(e) => setNbtMAT(e.target.value)}
+                                        type="number"
+                                        size="small"
+                                        InputProps={{
+                                            startAdornment: <Box component="span" sx={{ mr: 1, color: 'primary.main' }}>MAT</Box>,
+                                        }}
+                                    />
+                                </Tooltip>
+                            </Grid>
+                        </Grid>
+                    </Box>
 
-
+                    {/* Action Buttons */}
+                    <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+                        <Button
+                            variant="contained"
+                            onClick={() => {
+                                window.open('https://nbtests.uct.ac.za/', '_blank', 'noopener,noreferrer');
+                            }}
+                            sx={{ 
+                                minWidth: 200,
+                                borderRadius: 25,
+                                py: 1.5,
+                                fontWeight: 'bold',
+                                bgcolor: '#8932aa',
+                                color: '#fff',
+                                '&:hover': {
+                                    bgcolor: '#6b2587',
+                                }
+                            }}
+                        >
+                            BOOK AN NBT TEST
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleSaveToProfile}
+                            sx={{ 
+                                minWidth: 200,
+                                borderRadius: 25,
+                                py: 1.5,
+                                fontWeight: 'bold',
+                                bgcolor: '#8932aa',
+                                '&:hover': {
+                                    bgcolor: '#6b2587',
+                                }
+                            }}
+                        >
+                            SAVE TO PROFILE
+                        </Button>
+                    </Box>
+                </Box>
+            </Paper>
 
             {/* Error Snackbar */}
             <Snackbar
@@ -507,14 +638,16 @@ const CalculatorPage: React.FC = () => {
                 onClose={() => setErrorOpen(false)}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Alert onClose={() => setErrorOpen(false)} severity="error" sx={{ width: '100%' }}>
+                <Alert 
+                    onClose={() => setErrorOpen(false)} 
+                    severity={errorMessage.includes('success') ? 'success' : 'error'} 
+                    sx={{ width: '100%' }}
+                >
                     {errorMessage}
                 </Alert>
             </Snackbar>
-
-        </div>
+        </Container>
     );
-
 };
 
 export default CalculatorPage;

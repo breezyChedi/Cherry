@@ -19,8 +19,6 @@ interface UniversityCardProps {
   onSelect: (university: University) => void;
 }
 
-
-
 const UniversityCard: React.FC<UniversityCardProps> = ({ university, isSelected, onSelect }) => (
   <div
     onClick={() => onSelect(university)}
@@ -39,22 +37,41 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, isSelected,
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between', // Ensures elements are distributed with space between
-
     }}
   >
-    <div style={{ marginBottom: "auto" }}>
+    <div 
+      style={{ 
+        display: 'flex',
+        alignItems: 'center', 
+        justifyContent: 'center',
+        flexGrow: 1,
+        height: '120px', // Fixed height for logo container
+      }}
+    >
       <img
         src={university.logoUrl}
         alt={`${university.name} Logo`}
-        style={{ width: '100px', height: 'auto', marginBottom: '8px' }}
+        style={{ 
+          maxWidth: '100px', 
+          maxHeight: '100px', 
+          objectFit: 'contain', // Maintains aspect ratio
+        }}
       />
     </div>
-    <div style={{ marginTop: "auto", textAlign: "center" }}>
-      <div
-        style={{ marginBottom: "8px", textAlign: "center" ,alignItems: "center"}}
-      >
+    
+    <div style={{ marginTop: "auto" }}>
+      <div style={{ marginBottom: "8px", textAlign: "center" }}>
         <h2 style={{ fontFamily: 'Arial', margin: '8px 0' }}>{university.name}</h2>
-        <p style={{ fontFamily: 'Arial',margin: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FaMapMarkerAlt style={{ marginRight: '8px' }} /> {/* Location icon */}{university.location}</p>
+        <p style={{ 
+          fontFamily: 'Arial',
+          margin: '0', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center' 
+        }}>
+          <FaMapMarkerAlt style={{ marginRight: '8px' }} />
+          {university.location}
+        </p>
       </div>
 
       {/* Button to open appUrl */}

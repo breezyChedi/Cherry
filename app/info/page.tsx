@@ -1,13 +1,26 @@
 'use client'
 
 import React from 'react';
-
-
+import { 
+  Container, 
+  Typography, 
+  Box, 
+  Grid, 
+  Paper, 
+  Button, 
+  Card, 
+  CardContent, 
+  Divider,
+  useMediaQuery,
+  useTheme
+} from '@mui/material';
 
 const NBTPage: React.FC = () => {
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
   const handleNBTClick = () => {
-    window.location.href = 'https://nbtests.uct.ac.za/tests/register'; // Replace with your URL
+    window.location.href = 'https://nbtests.uct.ac.za/tests/register';
   };
 
   interface RequirementCard {
@@ -54,7 +67,6 @@ const NBTPage: React.FC = () => {
     level: number;
     competence: string;
     marks: string;
-    
   }
   
   const achievementLevels: AchievementLevel[] = [
@@ -66,318 +78,411 @@ const NBTPage: React.FC = () => {
     { level: 2, competence: 'Elementary', marks: '30-39' },
     { level: 1, competence: 'Not Achieved', marks: '0-29' },
   ];
-  
-  const styles = {
-
-    container: {
-      maxWidth: '800px',
-      margin: '0 auto',
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '20px',
-    },
-    header: {
-      backgroundColor: '#B45309',
-      color: 'white',
-      padding: '12px 16px',
-      fontWeight: '600',
-      textAlign: 'center' as const,
-    },
-    content: {
-      padding: '16px',
-    },
-    requirementsList: {
-      listStyle: 'none',
-      padding: '0',
-      margin: '0 0 16px 0',
-    },
-    requirementItem: {
-      margin: '8px 0',
-      paddingLeft: '20px',
-      position: 'relative' as const,
-    },
-    bullet: {
-      position: 'absolute' as const,
-      left: '8px',
-    },
-    description: {
-      textAlign: 'center' as const,
-      margin: '16px 0',
-      fontSize: '14px',
-      color: '#333',
-    },
-    button: {
-      display: 'block',
-      width: '200px',
-      margin: '0 auto',
-      padding: '8px 16px',
-      backgroundColor: '#006400',
-      color: 'white',
-      border: 'none',
-      borderRadius: '20px',
-      cursor: 'pointer',
-      textAlign: 'center' as const,
-    },
-    card: {
-      width: '100%',
-      maxWidth: '800px',
-      margin: '0 auto',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      borderRadius: '8px',
-      padding: '24px',
-    },
-    grid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '1px',
-      backgroundColor: '#e5e5e5',
-      border: '1px solid #e5e5e5',
-    },
-    cell: {
-      backgroundColor: 'white',
-      padding: '12px',
-      textAlign: 'center' as const,
-      borderBottom: '1px solid #e5e5e5',
-    }
-  };
 
   return (
-    <div className="p-6 bg-gray-50" style={{ fontFamily: 'Arial',alignItems: 'center', marginBottom: '80px', display: 'flex' ,flexDirection:'column'}} >
+    <Container maxWidth="lg" sx={{ py: 4, mb: 8 }}>
       {/* NBT Section Card */}
-      <div
-        style={{
-          width: '90%',
-          padding: '24px',
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          backgroundColor: '#fff',
-          marginBottom: '24px',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-          textAlign: 'center',
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          p: 4, 
+          mb: 4, 
+          borderRadius: 2,
+          background: 'linear-gradient(to right, #ffffff, #f9f9f9)'
         }}
       >
-        <div className="flex flex-col items-center mb-4">
-          <img
+        <Grid container spacing={4} alignItems="center">
+          <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Box 
+              component="img"
             src="/NBT-logo.png"
             alt="NBT Logo"
-            style={{ width: '150px', height: '120px', marginBottom: '16px' }}
-          />
-          <h1 style={{ fontSize: '20px', fontWeight: 'bold', fontFamily: 'Arial' }}>National Benchmark Tests Project</h1>
-        </div>
-        <p style={{ color: '#555', marginBottom: '16px', fontFamily: 'Arial' }}>
+              sx={{ 
+                width: isDesktop ? 220 : 150,
+                height: 'auto',
+                maxWidth: '100%'
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={8}>
+            <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
+              National Benchmark Tests Project
+            </Typography>
+            <Typography variant="body1" paragraph color="text.secondary">
           The National Benchmark Test is a test used for first-year applicants to assess their quantitative literacy and mathematics proficiency at an entry-level. The NBTs are conducted by the Centre for Educational Testing for Access and Placement (CETAP) on behalf of Universities South Africa (USAF). NBT assess the relationship between high education entry-level proficiencies and school-level exit outcomes.
-        </p>
-        <p style={{ color: '#555', fontFamily: 'Arial' }}>There are 3 tests that candidates write:</p>
-        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', marginTop: '16px' }}>
-            <div style={{display:'flex'}}>
-          <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold', flexShrink: 0}}>AL</div>
-          <p style={{ fontSize: '13px' }}>&nbsp;Academic Literacy</p>
-          </div>
-          
-          
-          <div style={{display:'flex'}}>
-          <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold', flexShrink: 0}}>QL</div>
-          <p style={{ fontSize: '13px' }}>&nbsp;Quantitative Literacy</p>
-          </div>
+            </Typography>
+            <Typography variant="h6" gutterBottom fontWeight="medium" color="primary">
+              The NBT consists of three assessment components:
+            </Typography>
+            
+            <Grid container spacing={2} mt={2}>
+              <Grid item xs={12} sm={4}>
+                <Card sx={{ height: '100%', borderLeft: '4px solid #57b9d8' }}>
+                  <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box 
+                      sx={{ 
+                        backgroundColor: '#57b9d8', 
+                        color: '#FFFFFF', 
+                        width: 50, 
+                        height: 50, 
+                        borderRadius: '50%', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        fontWeight: 'bold',
+                        mr: 2
+                      }}
+                    >
+                      AL
+                    </Box>
+                    <Typography>Academic Literacy</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={4}>
+                <Card sx={{ height: '100%', borderLeft: '4px solid #57b9d8' }}>
+                  <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box 
+                      sx={{ 
+                        backgroundColor: '#57b9d8', 
+                        color: '#FFFFFF', 
+                        width: 50, 
+                        height: 50, 
+                        borderRadius: '50%', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        fontWeight: 'bold',
+                        mr: 2
+                      }}
+                    >
+                      QL
+                    </Box>
+                    <Typography>Quantitative Literacy</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              
+              <Grid item xs={12} sm={4}>
+                <Card sx={{ height: '100%', borderLeft: '4px solid #57b9d8' }}>
+                  <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box 
+                      sx={{ 
+                        backgroundColor: '#57b9d8', 
+                        color: '#FFFFFF', 
+                        width: 50, 
+                        height: 50, 
+                        borderRadius: '50%', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        fontWeight: 'bold',
+                        mr: 2
+                      }}
+                    >
+                      MAT
+                    </Box>
+                    <Typography>Mathematics</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Paper>
 
-          <div style={{display:'flex'}}>
-          <div style={{ backgroundColor: '#57b9d8', color: '#FFFFFF', width: '50px',height: '50px', borderRadius: '50%', alignItems:'center', display:'flex', justifyContent: 'center' , fontWeight: 'bold', flexShrink: 0}}>MAT</div>
-          <p style={{ fontSize: '13px' }}>&nbsp;Mathematics</p>
-         </div>
-       
-        </div>
-      </div>
-
-      {/* Grid of Test Cards */}
-      <div className="grid-container" style={{ width: '90%', margin: '0 auto'}}>
+      {/* Test Cards */}
+      <Typography variant="h5" gutterBottom fontWeight="bold" color="primary" textAlign="center" mb={3}>
+        Understanding the NBT Tests
+      </Typography>
+      
+      <Grid container spacing={3} mb={5}>
+        <Grid item xs={12} md={4}>
+          <Paper 
+            elevation={2} 
+            sx={{ 
+              height: '100%', 
+              borderRadius: 2,
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: 6
+              }
+            }}
+          >
+            <Box sx={{ p: 3 }}>
+              <Typography variant="h6" fontWeight="bold" color="primary" gutterBottom>
+                The Academic Literacy Test (AL)
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Typography variant="body2" color="text.secondary">
+                The Academic Literacy Test is a 3-hour exam in which students will be tested on their capacity to engage successfully with the demands of academic study in the medium of instructions provided.
+              </Typography>
+            </Box>
+          </Paper>
+        </Grid>
         
-   
+        <Grid item xs={12} md={4}>
+          <Paper 
+            elevation={2} 
+            sx={{ 
+              height: '100%', 
+              borderRadius: 2,
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: 6
+              }
+            }}
+          >
+            <Box sx={{ p: 3 }}>
+              <Typography variant="h6" fontWeight="bold" color="primary" gutterBottom>
+                The Quantitative Literacy Test (QL)
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Typography variant="body2" color="text.secondary">
+                The Quantitative Literacy Test is a 3-hour exam in which students will be tested on their ability to manage situations and solve problems in real contexts relevant to higher education study.
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                The basic quantitative information may be presented verbally, graphically, in tabular or symbolic form.
+              </Typography>
+            </Box>
+          </Paper>
+        </Grid>
         
-        {/* Academic Literacy Test Card */}
-        <div
-        className="grid-item"
-          style={{
-            cursor: 'pointer',
-            minWidth: '200px',
-            padding: '16px',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            backgroundColor: '#fff',
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            flexDirection: 'column',
+        <Grid item xs={12} md={4}>
+          <Paper 
+            elevation={2} 
+            sx={{ 
+              height: '100%', 
+              borderRadius: 2,
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: 6
+              }
+            }}
+          >
+            <Box sx={{ p: 3 }}>
+              <Typography variant="h6" fontWeight="bold" color="primary" gutterBottom>
+                The Mathematics Test (MAT)
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Typography variant="body2" color="text.secondary">
+                The Mathematics Test is a 3-hour exam in which students are tested on their ability to relate to mathematical concepts formally regarded as part of the secondary school curriculum.
+              </Typography>
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+      
+      {/* Book NBT Button */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 6 }}>
+        <Button
+          variant="contained"
+          color="secondary"
+          size="large"
+          onClick={handleNBTClick}
+          sx={{ 
+            py: 1.5, 
+            px: 4, 
+            borderRadius: 8, 
+            fontWeight: 'bold',
+            boxShadow: 3 
           }}
         >
-          <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', fontFamily: 'Arial' }}>The Academic Literacy Test (AL)</h2>
-          <p style={{ color: '#555', fontFamily: 'Arial' }}>
-            The Academic Literacy Test is a 3-hour exam in which students will be tested on their capacity to engage successfully with the demands of academic study in the medium of instructions provided.
-          </p>
-        </div>
-
-        {/* Quantitative Literacy Test Card */}
-        <div
-        className="grid-item"
-          style={{
-
-            cursor: 'pointer',
-            minWidth: '200px',
-            padding: '16px',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            backgroundColor: '#fff',
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', fontFamily: 'Arial' }}>The Quantitative Literacy Test (QL)</h2>
-          <p style={{ color: '#555', fontFamily: 'Arial' }}>
-            The Quantitative Literacy Test is a 3-hour exam in which students will be tested on their ability to manage situations and solve problems in real contexts relevant to higher education study.
-          </p>
-          <p style={{ color: '#555', marginTop: '8px' }}>
-            The basic quantitative information may be presented verbally, graphically, in tabular or symbolic form.
-          </p>
-        </div>
-
-        {/* Mathematics Test Card */}
-        <div
-        className="grid-item"
-          style={{
-            cursor: 'pointer',
-            minWidth: '200px',
-            padding: '16px',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            backgroundColor: '#fff',
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', fontFamily: 'Arial' }}>The Mathematics Test (MAT)</h2>
-          <p style={{ color: '#555', fontFamily: 'Arial' }}>
-            The Mathematics Test is a 3-hour exam in which students are tested on their ability to relate to mathematical concepts formally regarded as part of the secondary school curriculum.
-          </p>
-        </div>
-      </div>
-      <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        width: '100%', // Ensure the button container spans the screen width
-        padding: '16px',
-        boxSizing: 'border-box', // Include padding in width calculation
-      }}
-    >
-      <button
-        style={{
-          width: '100%', // Make the button span the full width of the container
-          maxWidth: '400px', // Optional: Limit the width for better readability
-          padding: '12px 16px',
-          backgroundColor: '#F3D4F5', // Light pink background
-          color: '#000', // Black text color
-          border: '1px solid #000', // Border color matches text
-          borderRadius: '16px', // Rounded corners
-          fontSize: '16px',
+          Book an NBT Test
+        </Button>
+      </Box>
+      
+      {/* National Senior Certificate Section */}
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          p: 4, 
+          mb: 5, 
+          borderRadius: 2,
+          background: 'linear-gradient(to right, #ffffff, #f9f9f9)'
+        }}
+      >
+        <Grid container spacing={3} alignItems="center">
+          <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Box 
+              component="img"
+              src="/edu-logo.png"
+              alt="Education Logo"
+              sx={{ 
+                width: 260, 
+                height: 'auto',
+                maxWidth: '100%'
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={8}>
+            <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
+              National Senior Certificate
+            </Typography>
+            <Typography variant="body1" paragraph color="text.secondary">
+              The National Senior Certificate (NSC) examinations commonly referred to as "matric" has become an annual event of major public significance. It not only signifies the culmination of twelve years of formal schooling but the NSC examinations is a barometer of the health of the education system.
+            </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+      
+      {/* Achievement Levels Table */}
+      <Typography variant="h5" gutterBottom fontWeight="bold" color="primary" textAlign="center" mb={3}>
+        Achievement Levels
+      </Typography>
+      
+      <Paper elevation={2} sx={{ mb: 5, overflow: 'hidden', borderRadius: 2 }}>
+        <Box sx={{ display: 'table', width: '100%', borderCollapse: 'collapse' }}>
+          {/* Header Row */}
+          <Box sx={{ display: 'table-row', bgcolor: 'primary.main' }}>
+            <Box 
+              sx={{ 
+                display: 'table-cell', 
+                p: 2, 
+                color: 'white', 
+                fontWeight: 'bold',
+                width: '33%',
+                textAlign: 'center'
+              }}
+            >
+              Achievement Level
+            </Box>
+            <Box 
+              sx={{ 
+                display: 'table-cell', 
+                p: 2, 
+                color: 'white', 
           fontWeight: 'bold',
-          cursor: 'pointer',
-          textAlign: 'center',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)', // Subtle shadow
-        }}
-        onClick={handleNBTClick} // Action on click
-      >
-        Book an NBT Test
-      </button>
-    </div>
-
-      <style>
-        {`
-          .grid-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-          }
-
-          @media (min-width: 768px) {
-            .grid-container {
-              grid-template-columns: repeat(3, 1fr);
-            }
-          }
-        `}
-      </style>
-
-
-      <div
-        style={{
-          width: '90%',
-          padding: '24px',
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          backgroundColor: '#fff',
-          marginBottom: '24px',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-          textAlign: 'center',
-        }}
-      >
-        <div className="flex flex-col items-center mb-4">
-          <img
-            src="/edu-logo.png"
-            alt="edu Logo"
-            style={{ width: '260px', height: '120px', marginBottom: '16px' }}
-          />
-          
-        </div>
-        <p style={{ color: '#555', marginBottom: '16px', fontFamily: 'Arial' }}>
-        The National Senior Certificate (NSC) examinations commonly referred to as “matric” has become an annual event of major public significance. It not only signifies the culmination of twelve years of formal schooling but the NSC examinations is a barometer of the health of the education system.
-        </p>
-        </div>
-
-        <div style={styles.card}>
-      <div style={styles.grid}>
-        {/* Header Row */}
-        <div style={styles.header}>Achievement Level</div>
-        <div style={styles.header}>Description of Competence</div>
-        <div style={styles.header}>MARKS %</div>
+                width: '33%',
+                textAlign: 'center'
+              }}
+            >
+              Description of Competence
+            </Box>
+            <Box 
+              sx={{ 
+                display: 'table-cell', 
+                p: 2, 
+                color: 'white', 
+                fontWeight: 'bold',
+                width: '33%',
+                textAlign: 'center'
+              }}
+            >
+              MARKS %
+            </Box>
+          </Box>
 
         {/* Data Rows */}
-        {achievementLevels.map((item) => (
-          <React.Fragment key={item.level}>
-            <div style={styles.cell}>{item.level}</div>
-            <div style={styles.cell}>{item.competence}</div>
-            <div style={styles.cell}>{item.marks}</div>
-          </React.Fragment>
-        ))}
-      </div>
-    </div>
-
-    <div style={styles.container}>
+          {achievementLevels.map((item, index) => (
+            <Box 
+              key={`level-${item.level}`} 
+              sx={{ 
+                display: 'table-row',
+                bgcolor: index % 2 === 0 ? 'background.paper' : 'action.hover'
+              }}
+            >
+              <Box 
+                sx={{ 
+                  display: 'table-cell', 
+                  p: 2, 
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  color: 'primary.main'
+                }}
+              >
+                {item.level}
+              </Box>
+              <Box 
+                sx={{ 
+                  display: 'table-cell', 
+                  p: 2, 
+                  textAlign: 'center'
+                }}
+              >
+                {item.competence}
+              </Box>
+              <Box 
+                sx={{ 
+                  display: 'table-cell', 
+                  p: 2, 
+                  textAlign: 'center'
+                }}
+              >
+                {item.marks}
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      </Paper>
+      
+      {/* Requirements Cards */}
+      <Typography variant="h5" gutterBottom fontWeight="bold" color="primary" textAlign="center" mb={3}>
+        NSC Requirements
+      </Typography>
+      
+      <Grid container spacing={3}>
       {requirementsData.map((card, index) => (
-        <div key={index} style={styles.card}>
-          <div style={styles.header}>
+          <Grid item xs={12} md={4} key={`req-${index}`}>
+            <Paper 
+              elevation={2} 
+              sx={{ 
+                height: '100%', 
+                borderRadius: 2,
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
+              <Box 
+                sx={{ 
+                  bgcolor: 'secondary.main', 
+                  color: 'white', 
+                  p: 2,
+                  textAlign: 'center',
+                  fontWeight: 'bold'
+                }}
+              >
             {card.title}
-          </div>
-          <div style={styles.content}>
-            <ul style={styles.requirementsList}>
+              </Box>
+              <Box sx={{ p: 3, flexGrow: 1 }}>
+                <Box component="ul" sx={{ pl: 2, mb: 2 }}>
               {card.requirements.map((req, reqIndex) => (
-                <li key={reqIndex} style={styles.requirementItem}>
-                  <span style={styles.bullet}>-</span>
+                    <Box 
+                      component="li" 
+                      key={`req-item-${reqIndex}`}
+                      sx={{ mb: 1 }}
+                    >
                   {req}
-                </li>
-              ))}
-            </ul>
-            <p style={styles.description}>
+                    </Box>
+                  ))}
+                </Box>
+                <Typography 
+                  variant="body2" 
+                  align="center" 
+                  color="text.secondary"
+                  sx={{ mb: 3 }}
+                >
               {card.description}
-            </p>
-            <button style={styles.button}>
+                </Typography>
+              </Box>
+              <Box sx={{ p: 2, textAlign: 'center' }}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  sx={{ borderRadius: 8, fontWeight: 'bold', px: 3 }}
+                >
               Qualify for NQF Level {card.nqf}
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
-
-    </div>
-    
+                </Button>
+              </Box>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   );
 };
 

@@ -2,7 +2,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-
 import React, { useState } from 'react';
 import {
   Tabs,
@@ -15,21 +14,42 @@ import {
   MenuItem,
   Snackbar,
   Alert,
+  Container,
+  Paper,
+  Grid,
+  Divider,
+  InputAdornment,
+  IconButton,
+  FormControl,
+  InputLabel,
+  useMediaQuery,
+  useTheme,
+  FormHelperText,
 } from '@mui/material';
 import Flag from 'react-world-flags';
-import { auth, db } from '../firebaseConfig'; // Import Firebase Auth and Firestore
+import { auth, db } from '../firebaseConfig';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { Router } from 'next/router';
-
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import PersonIcon from '@mui/icons-material/Person';
+import SchoolIcon from '@mui/icons-material/School';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import FlagIcon from '@mui/icons-material/Flag';
+import WcIcon from '@mui/icons-material/Wc';
+import LockIcon from '@mui/icons-material/Lock';
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const [activeTab, setActiveTab] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Snackbar state
   const [snackbar, setSnackbar] = useState<{
@@ -52,6 +72,16 @@ const ProfilePage: React.FC = () => {
       return;
     }
     setSnackbar({ ...snackbar, open: false });
+  };
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  // Toggle confirm password visibility
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   // Gender options
@@ -84,28 +114,52 @@ const ProfilePage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
+    // Form validation states
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+
+    const validateEmail = (email: string): boolean => {
+      const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(String(email).toLowerCase());
+    };
+
+    const validatePassword = (password: string): boolean => {
+      return password.length >= 8;
+    };
+
     const handleSignUp = async (e: React.FormEvent) => {
       e.preventDefault();
+      let isValid = true;
 
-      // Validation checks
+      // Reset errors
+      setEmailError('');
+      setPasswordError('');
+
+      // Validate email
+      if (!validateEmail(email)) {
+        setEmailError('Please enter a valid email address');
+        isValid = false;
+      }
+
+      // Validate password
+      if (!validatePassword(password)) {
+        setPasswordError('Password must be at least 8 characters long');
+        isValid = false;
+      }
+
+      // Check if emails match
       if (email !== confirmEmail) {
-        setSnackbar({
-          open: true,
-          message: 'Emails do not match.',
-          severity: 'error',
-        });
-        return;
-      }
-      if (password !== confirmPassword) {
-        setSnackbar({
-          open: true,
-          message: 'Passwords do not match.',
-          severity: 'error',
-        });
-        return;
+        setEmailError('Emails do not match');
+        isValid = false;
       }
 
-      // Additional validation can be added here (e.g., email format, password strength)
+      // Check if passwords match
+      if (password !== confirmPassword) {
+        setPasswordError('Passwords do not match');
+        isValid = false;
+      }
+
+      if (!isValid) return;
 
       try {
         // Create user with Firebase Auth
@@ -128,7 +182,6 @@ const ProfilePage: React.FC = () => {
           createdAt: new Date(),
         });
         
-
         router.push('/profile/profileDetails');
 
         // Show success Snackbar
@@ -138,7 +191,7 @@ const ProfilePage: React.FC = () => {
           severity: 'success',
         });
 
-        // Optionally, reset the form
+        // Reset the form
         setName('');
         setSurname('');
         setHighSchool('');
@@ -162,137 +215,247 @@ const ProfilePage: React.FC = () => {
 
     return (
       <Box component="form" onSubmit={handleSignUp} sx={{ mt: 3 }}>
-        <TextField
-          fullWidth
-          label="Name"
-          margin="normal"
-          variant="standard"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <TextField
-          fullWidth
-          label="Surname"
-          margin="normal"
-          variant="standard"
-          value={surname}
-          onChange={(e) => setSurname(e.target.value)}
-          required
-        />
-
-        {/* Gender dropdown */}
-        <Select
-          fullWidth
-          value={gender}
-          onChange={(e) => setGender(e.target.value as string)}
-          displayEmpty
-          variant="standard"
-          sx={{ mt: 2 }}
-          required
-        >
-          <MenuItem value="" disabled>
-            Select Gender
-          </MenuItem>
-          {genderOptions.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-
-        <TextField
-          fullWidth
-          label="High School"
-          margin="normal"
-          variant="standard"
-          value={highSchool}
-          onChange={(e) => setHighSchool(e.target.value)}
-          required
-        />
-        <TextField
-          fullWidth
-          label="Phone Number"
-          margin="normal"
-          variant="standard"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-          required
-        />
-
-        {/* Nationality dropdown */}
-        <Select
-          fullWidth
-          value={nationality}
-          onChange={(e) => setNationality(e.target.value as string)}
-          displayEmpty
-          variant="standard"
-          sx={{ mt: 2 }}
-          required
-        >
-          <MenuItem value="" disabled>
-            Select Nationality
-          </MenuItem>
-          {countries.map((country) => (
-            <MenuItem key={country.code} value={country.name}>
-              <Flag
-                code={country.code.toLowerCase()}
-                style={{ width: 20, marginRight: 8 }}
-              />
-              {country.name}
-            </MenuItem>
-          ))}
-        </Select>
-
-        <TextField
-          fullWidth
-          label="Email Address"
-          margin="normal"
-          variant="standard"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <TextField
-          fullWidth
-          label="Confirm Email Address"
-          margin="normal"
-          variant="standard"
-          type="email"
-          value={confirmEmail}
-          onChange={(e) => setConfirmEmail(e.target.value)}
-          required
-        />
-        <TextField
-          fullWidth
-          label="Password"
-          type="password"
-          margin="normal"
-          variant="standard"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <TextField
-          fullWidth
-          label="Confirm Password"
-          type="password"
-          margin="normal"
-          variant="standard"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon color="primary" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Surname"
+              value={surname}
+              onChange={(e) => setSurname(e.target.value)}
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon color="primary" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth required>
+              <InputLabel id="gender-label">Gender</InputLabel>
+              <Select
+                labelId="gender-label"
+                value={gender}
+                onChange={(e) => setGender(e.target.value as string)}
+                label="Gender"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <WcIcon color="primary" />
+                  </InputAdornment>
+                }
+              >
+                {genderOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="High School"
+              value={highSchool}
+              onChange={(e) => setHighSchool(e.target.value)}
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SchoolIcon color="primary" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Phone Number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PhoneIcon color="primary" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth required>
+              <InputLabel id="nationality-label">Nationality</InputLabel>
+              <Select
+                labelId="nationality-label"
+                value={nationality}
+                onChange={(e) => setNationality(e.target.value as string)}
+                label="Nationality"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <FlagIcon color="primary" />
+                  </InputAdornment>
+                }
+              >
+                {countries.map((country) => (
+                  <MenuItem key={country.code} value={country.name}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Flag
+                        code={country.code.toLowerCase()}
+                        style={{ width: 20, marginRight: 8 }}
+                      />
+                      {country.name}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
+          <Grid item xs={12}>
+            <Divider sx={{ my: 1 }}>
+              <Typography variant="caption" color="text.secondary">
+                ACCOUNT DETAILS
+              </Typography>
+            </Divider>
+          </Grid>
+          
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              error={!!emailError}
+              helperText={emailError}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon color="primary" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Confirm Email Address"
+              type="email"
+              value={confirmEmail}
+              onChange={(e) => setConfirmEmail(e.target.value)}
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon color="primary" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              error={!!passwordError}
+              helperText={passwordError}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon color="primary" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={togglePasswordVisibility}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Confirm Password"
+              type={showConfirmPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon color="primary" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={toggleConfirmPasswordVisibility}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+        </Grid>
 
         <Button
           type="submit"
           variant="contained"
           color="primary"
           fullWidth
-          sx={{ mt: 2, bgcolor: 'purple', '&:hover': { bgcolor: 'darkpurple' } }}
+          sx={{ 
+            mt: 4, 
+            mb: 2, 
+            py: 1.5, 
+            borderRadius: 2,
+            fontWeight: 'bold',
+            background: 'linear-gradient(45deg, #9c27b0 30%, #d81b60 90%)',
+            boxShadow: '0 3px 5px 2px rgba(156, 39, 176, .3)'
+          }}
         >
-          Sign up
+          Create Account
         </Button>
       </Box>
     );
@@ -302,9 +465,12 @@ const ProfilePage: React.FC = () => {
   const SignInForm: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [emailError, setEmailError] = useState('');
 
     const handleSignIn = async (e: React.FormEvent) => {
       e.preventDefault();
+      setEmailError('');
+      
       try {
         await signInWithEmailAndPassword(auth, email, password);
         // Show success Snackbar
@@ -314,19 +480,23 @@ const ProfilePage: React.FC = () => {
           severity: 'success',
         });
 
-        // Optionally, reset the form
+        // Reset the form
         setEmail('');
         setPassword('');
 
         router.push('/profile/profileDetails');
 
       } catch (err: any) {
-        // Show error Snackbar
-        setSnackbar({
-          open: true,
-          message: err.message || 'Sign-in failed.',
-          severity: 'error',
-        });
+        // Show appropriate error messages
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+          setEmailError('Invalid email or password');
+        } else {
+          setSnackbar({
+            open: true,
+            message: err.message || 'Sign-in failed.',
+            severity: 'error',
+          });
+        }
       }
     };
 
@@ -335,22 +505,45 @@ const ProfilePage: React.FC = () => {
         <TextField
           fullWidth
           label="Email Address"
-          margin="normal"
-          variant="standard"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          error={!!emailError}
+          helperText={emailError}
+          sx={{ mb: 2 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <EmailIcon color="primary" />
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           fullWidth
           label="Password"
-          type="password"
-          margin="normal"
-          variant="standard"
+          type={showPassword ? "text" : "password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LockIcon color="primary" />
+              </InputAdornment>
+            ),
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={togglePasswordVisibility}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
 
         <Button
@@ -358,16 +551,28 @@ const ProfilePage: React.FC = () => {
           variant="contained"
           color="primary"
           fullWidth
-          sx={{ mt: 2, bgcolor: 'purple', '&:hover': { bgcolor: 'darkpurple' } }}
+          sx={{ 
+            mt: 4, 
+            mb: 2,
+            py: 1.5, 
+            borderRadius: 2,
+            fontWeight: 'bold',
+            background: 'linear-gradient(45deg, #9c27b0 30%, #d81b60 90%)',
+            boxShadow: '0 3px 5px 2px rgba(156, 39, 176, .3)'
+          }}
         >
-          Sign in
+          Sign In
         </Button>
+        
         <Button
           variant="outlined"
           color="primary"
           fullWidth
-          sx={{ mt: 1 }}
-          // Add your forgot password handler here
+          sx={{ 
+            mb: 2,
+            py: 1.2,
+            borderRadius: 2
+          }}
         >
           Forgot Password
         </Button>
@@ -376,46 +581,78 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto', mt: 4 }}>
-      <Tabs
-        value={activeTab}
-        onChange={handleTabChange}
-        variant="fullWidth"
-        sx={{
-          '& .MuiTab-root': {
-            fontWeight: 'bold',
-          },
-          '& .MuiTabs-indicator': {
-            backgroundColor: 'purple',
-          },
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          borderRadius: 2,
+          overflow: 'hidden',
+          backgroundColor: 'white',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
         }}
       >
-        <Tab
-          label="Sign up"
-          sx={{
-            color: activeTab === 0 ? 'white' : 'purple',
-            bgcolor:
-              activeTab === 0
-                ? 'rgba(128, 0, 128, 0.6)'
-                : 'rgba(128, 0, 128, 0.2)',
-            borderRadius: '8px 8px 0 0',
+        {/* Header with logo or brand */}
+        <Box 
+          sx={{ 
+            bgcolor: 'primary.dark', 
+            py: 3, 
+            textAlign: 'center',
+            borderBottom: '5px solid',
+            borderImage: 'linear-gradient(to right, #9c27b0, #d81b60) 1'
           }}
-        />
-        <Tab
-          label="Sign in"
+        >
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            color="white"
+            fontWeight="bold"
+          >
+            Welcome to Cherry
+          </Typography>
+          <Typography 
+            variant="subtitle1" 
+            color="rgba(255,255,255,0.8)"
+          >
+            {activeTab === 0 ? 'Create an account to start your journey' : 'Sign in to your account'}
+          </Typography>
+        </Box>
+        
+        {/* Tabs */}
+        <Tabs
+          value={activeTab}
+          onChange={handleTabChange}
+          variant="fullWidth"
           sx={{
-            color: activeTab === 1 ? 'white' : 'purple',
-            bgcolor:
-              activeTab === 1
-                ? 'rgba(128, 0, 128, 0.6)'
-                : 'rgba(128, 0, 128, 0.2)',
-            borderRadius: '8px 8px 0 0',
+            borderBottom: 1,
+            borderColor: 'divider',
+            '.MuiTabs-indicator': {
+              height: 3,
+              borderRadius: '3px 3px 0 0',
+              background: 'linear-gradient(to right, #9c27b0, #d81b60)',
+            },
           }}
-        />
-      </Tabs>
+        >
+          <Tab 
+            label={
+              <Box sx={{ py: 1, fontWeight: activeTab === 0 ? 'bold' : 'normal' }}>
+                Sign up
+              </Box>
+            }
+          />
+          <Tab 
+            label={
+              <Box sx={{ py: 1, fontWeight: activeTab === 1 ? 'bold' : 'normal' }}>
+                Sign in
+              </Box>
+            }
+          />
+        </Tabs>
 
-      {/* Render the forms conditionally based on the active tab */}
-      {activeTab === 0 ? <SignUpForm /> : <SignInForm />}
+        <Box sx={{ p: isDesktop ? 4 : 2 }}>
+          {/* Render the forms conditionally based on the active tab */}
+          {activeTab === 0 ? <SignUpForm /> : <SignInForm />}
+        </Box>
+      </Paper>
 
       {/* Snackbar for notifications */}
       <Snackbar
@@ -428,19 +665,12 @@ const ProfilePage: React.FC = () => {
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           sx={{ width: '100%' }}
+          variant="filled"
         >
           {snackbar.message}
         </Alert>
       </Snackbar>
-
-      <Box
-        component="footer"
-        sx={{
-          height: '64px', // Same height as your navbar
-          backgroundColor: 'white',
-        }}
-      ></Box>
-    </Box>
+    </Container>
   );
 };
 
