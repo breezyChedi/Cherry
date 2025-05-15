@@ -28,15 +28,18 @@ export async function GET(request: NextRequest) {
         if (contentType && contentType.includes('text/html')) {
             let text = await response.text()
             
+            // First handle the specific exception for app routes
+            // This needs to happen BEFORE the general domain replacement
+            text = text.replace(
+                /href=["'](https?:\/\/)?(www\.)?cherry\.org\.za\/(calculator|profile|info|universities|home)([/"'\s]|>)/g,
+                (match, protocol, www, route, ending) => {
+                    return `href="/${route}${ending}`;
+                }
+            )
+            
+            // Now do the general replacement for all other URLs
             // Replace any references to www.cherry.org.za with home.cherry.org.za
             text = text.replace(/www\.cherry\.org\.za/g, 'home.cherry.org.za')
-            
-            // Fix redirects to app routes (like /calculator, /profile, etc.)
-            // This ensures links to app routes point to cherry.org.za instead of home.cherry.org.za
-            text = text.replace(
-                /(href|action)=["'](https?:\/\/)?([^"']*?)cherry\.org\.za\/(calculator|profile|info|universities|home)["']/g,
-                '$1="/$4"'
-            )
             
             // Replace relative asset paths with absolute paths
             text = text.replace(
