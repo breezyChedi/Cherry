@@ -30,10 +30,20 @@ export async function GET(request: NextRequest) {
             
             // First handle the specific exception for app routes
             // This needs to happen BEFORE the general domain replacement
+            
+            // Handle href, action, data-url and other attributes that might contain navigation URLs
             text = text.replace(
-                /href=["'](https?:\/\/)?(www\.)?cherry\.org\.za\/(calculator|profile|info|universities|home)([/"'\s]|>)/g,
-                (match, protocol, www, route, ending) => {
-                    return `href="/${route}${ending}`;
+                /(href|action|data-url|url)=["'](https?:\/\/)?(www\.)?cherry\.org\.za\/(calculator|profile|info|universities|home)([/"'\s]|>)/g,
+                (match, attr, protocol, www, route, ending) => {
+                    return `${attr}="/${route}${ending}`;
+                }
+            )
+            
+            // Handle potential JavaScript redirects
+            text = text.replace(
+                /window\.location(?:\.href)?\s*=\s*["'](https?:\/\/)?(www\.)?cherry\.org\.za\/(calculator|profile|info|universities|home)["']/g,
+                (match, protocol, www, route) => {
+                    return `window.location = "/${route}"`;
                 }
             )
             
