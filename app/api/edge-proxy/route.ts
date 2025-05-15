@@ -31,6 +31,13 @@ export async function GET(request: NextRequest) {
             // Replace any references to www.cherry.org.za with home.cherry.org.za
             text = text.replace(/www\.cherry\.org\.za/g, 'home.cherry.org.za')
             
+            // Fix redirects to app routes (like /calculator, /profile, etc.)
+            // This ensures links to app routes point to cherry.org.za instead of home.cherry.org.za
+            text = text.replace(
+                /(href|action)=["'](https?:\/\/)?([^"']*?)cherry\.org\.za\/(calculator|profile|info|universities|home)["']/g,
+                '$1="/$4"'
+            )
+            
             // Replace relative asset paths with absolute paths
             text = text.replace(
                 /(src|href)=["'](\/_assets\/[^"']*?)["']/g,
