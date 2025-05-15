@@ -28,28 +28,31 @@ export async function GET(request: NextRequest) {
         if (contentType && contentType.includes('text/html')) {
             let text = await response.text()
             
-            // First handle the specific exception for app routes
-            // This needs to happen BEFORE the general domain replacement
-            
-            // Handle href, action, data-url and other attributes that might contain navigation URLs
+            // Special fix for app routes like cherry.org.za/calculator
+            // This handles URLs exactly as shown in the inspector
+            // This needs to be more specific than the other replacements to avoid false positives
             text = text.replace(
-                /(href|action|data-url|url)=["'](https?:\/\/)?(www\.)?cherry\.org\.za\/(calculator|profile|info|universities|home)([/"'\s]|>)/g,
-                (match, attr, protocol, www, route, ending) => {
+                /(href|action|data-url|url)=["'](https?:\/\/)?(www\.|home\.)?cherry\.org\.za\/(calculator|profile|info|universities|home)([/"'\s]|>)/g,
+                (match, attr, protocol, subdomain, route, ending) => {
                     return `${attr}="/${route}${ending}`;
                 }
             )
             
             // Handle potential JavaScript redirects
             text = text.replace(
-                /window\.location(?:\.href)?\s*=\s*["'](https?:\/\/)?(www\.)?cherry\.org\.za\/(calculator|profile|info|universities|home)["']/g,
-                (match, protocol, www, route) => {
+                /window\.location(?:\.href)?\s*=\s*["'](https?:\/\/)?(www\.|home\.)?cherry\.org\.za\/(calculator|profile|info|universities|home)["']/g,
+                (match, protocol, subdomain, route) => {
                     return `window.location = "/${route}"`;
                 }
             )
             
             // Now do the general replacement for all other URLs
-            // Replace any references to www.cherry.org.za with home.cherry.org.za
-            text = text.replace(/www\.cherry\.org\.za/g, 'home.cherry.org.za')
+            // Replace any references to www.cherry.org.za with home.cherry.org.za for assets and other links
+            // BUT NOT for app routes which we already handled
+            text = text.replace(
+                /(https?:\/\/)?www\.cherry\.org\.za(?!\/(calculator|profile|info|universities|home))/g, 
+                'https://home.cherry.org.za'
+            )
             
             // Replace relative asset paths with absolute paths
             text = text.replace(
