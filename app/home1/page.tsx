@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { GooglePlayButton, AppStoreButton, AppGalleryButton, ButtonsContainer } from 'react-mobile-app-button';
+import { GooglePlayButton, AppStoreButton, AppGalleryButton } from 'react-mobile-app-button';
 import { 
   Calculator, 
   BookOpen, 
