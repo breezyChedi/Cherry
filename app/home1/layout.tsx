@@ -12,9 +12,9 @@ export const metadata: Metadata = {
     siteName: 'Cherry',
     images: [
       {
-        url: 'https://www.cherry.org.za/cherryLogoPng.png',
-        width: 512,
-        height: 512,
+        url: 'https://www.cherry.org.za/cherry_square_logo.png',
+        width: 1024,
+        height: 1024,
         alt: 'Cherry Logo',
       },
     ],
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Cherry - Your Path to Higher Education in South Africa',
     description: 'Calculate your APS Score in 60 seconds. Search university courses, check eligibility requirements, and find the perfect degree program for your future career.',
-    images: ['https://www.cherry.org.za/cherryLogoPng.png'],
+    images: ['https://www.cherry.org.za/cherry_square_logo.png'],
   },
 };
 
