@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { GooglePlayButton, AppStoreButton, AppGalleryButton } from 'react-mobile-app-button';
@@ -28,7 +28,50 @@ const CloudDecoration = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// Device detection hook
+function useDeviceDetection() {
+  const [device, setDevice] = useState<'ios' | 'android' | 'huawei' | 'desktop'>('desktop');
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    
+    if (/iphone|ipad|ipod/.test(userAgent)) {
+      setDevice('ios');
+    } else if (/huawei/i.test(userAgent)) {
+      setDevice('huawei');
+    } else if (/android/.test(userAgent)) {
+      setDevice('android');
+    } else {
+      setDevice('desktop');
+    }
+  }, []);
+
+  return device;
+}
+
 export default function Home1Page() {
+  const device = useDeviceDetection();
+  const [showWebAppLink, setShowWebAppLink] = useState(false);
+
+  const getAppStoreUrl = () => {
+    switch (device) {
+      case 'ios':
+        return 'https://apps.apple.com/za/app/cherry-aps/id6743092423';
+      case 'android':
+        return 'https://play.google.com/store/apps/details?id=com.cherry.cherri';
+      case 'huawei':
+        return 'https://appgallery.huawei.com/app/C113682051';
+      default:
+        return '/profile';
+    }
+  };
+
+  const handleMainButtonClick = (e: React.MouseEvent) => {
+    if (device !== 'desktop') {
+      e.preventDefault();
+      window.location.href = getAppStoreUrl();
+    }
+  };
   return (
     <div style={{ 
       background: 'linear-gradient(180deg, #fddeff 0%, #ffe4f5 50%, #fddeff 100%)',
@@ -56,13 +99,23 @@ export default function Home1Page() {
             <span className="text-2xl font-black text-black tracking-wider">CHERRY</span>
           </div>
           
-          <a 
-            href="/profile" 
-            className="bg-[#FF1493] text-white font-bold px-8 py-3 rounded-full hover:bg-pink-600 transition-all transform hover:scale-105 shadow-lg"
-          >
-            <span className="hidden sm:inline">Use Web App</span>
-            <span className="sm:hidden">Login</span>
-          </a>
+          <div className="flex flex-col items-end gap-2">
+            <a 
+              href={device === 'desktop' ? '/profile' : getAppStoreUrl()}
+              onClick={handleMainButtonClick}
+              className="bg-[#FF1493] text-white font-bold px-8 py-3 rounded-full hover:bg-pink-600 transition-all transform hover:scale-105 shadow-lg"
+            >
+              {device === 'desktop' ? 'Use Web App' : 'Download App'}
+            </a>
+            {device !== 'desktop' && (
+              <a 
+                href="/profile" 
+                className="text-sm text-gray-700 hover:text-pink-600 underline"
+              >
+                Or continue to web app
+              </a>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -153,7 +206,7 @@ export default function Home1Page() {
       </section>
 
       {/* Berry Informed */}
-      <section className="py-20 px-6 relative">
+      <section className="py-10 md:py-20 px-6 relative">
         <CloudDecoration className="absolute top-20 left-5 opacity-30" />
         <CloudDecoration className="absolute bottom-10 right-24 opacity-30" />
         <div className="max-w-4xl mx-auto">
@@ -164,8 +217,8 @@ export default function Home1Page() {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <div className="mb-8 inline-block">
-              <div className="relative w-[300px] h-[400px]">
+            <div className="mb-4 md:mb-8 inline-block">
+              <div className="relative w-[510px] h-[680px] md:w-[300px] md:h-[400px]">
                 <Image
                   src="/HOME_PHOTOS/42c0ffc0-0764-4f56-9ec6-0d975298381a.JPG"
                   alt="App Features"
@@ -183,7 +236,7 @@ export default function Home1Page() {
       </section>
 
       {/* Full Course Feast */}
-      <section className="py-20 px-6">
+      <section className="py-10 md:py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -192,7 +245,7 @@ export default function Home1Page() {
             transition={{ duration: 0.6 }}
             className="grid md:grid-cols-2 gap-12 items-center"
           >
-            <div className="relative w-full h-[500px]">
+            <div className="relative w-full h-[850px] md:h-[500px]">
               <Image
                 src="/HOME_PHOTOS/IMG_3113.PNG"
                 alt="University Explorer"
@@ -216,7 +269,7 @@ export default function Home1Page() {
       </section>
 
       {/* Sow Your Seeds */}
-      <section className="py-20 px-6 relative">
+      <section className="py-10 md:py-20 px-6 relative">
         <CloudDecoration className="absolute top-10 right-20 opacity-30" />
         <CloudDecoration className="absolute bottom-10 left-1/4 opacity-35" />
         <div className="max-w-6xl mx-auto">
@@ -238,7 +291,7 @@ export default function Home1Page() {
                 <span className="text-pink-500 font-bold">Calculate your APS Score on the app.</span> With Cherry we help high school pupils & parents find courses the right courses for the future careers.
               </p>
             </div>
-            <div className="relative w-full h-[500px] order-1 md:order-2">
+            <div className="relative w-full h-[850px] md:h-[500px] order-1 md:order-2">
               <Image
                 src="/HOME_PHOTOS/IMG_3112.PNG"
                 alt="APS Calculator"
@@ -369,32 +422,30 @@ export default function Home1Page() {
             </h2>
             <p className="text-2xl text-gray-700 mb-8 italic">It&apos;s ripe for the download.</p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <div className="flex gap-4 justify-center items-center">
-                <div style={{ width: '200px', height: '60px' }}>
-                  <GooglePlayButton
-                    url="https://play.google.com/store/apps/details?id=com.cherry.cherri"
-                    theme="dark"
-                    height={60}
-                    width={200}
-                  />
-                </div>
-                <div style={{ width: '200px', height: '60px' }}>
-                  <AppStoreButton
-                    url="https://apps.apple.com/za/app/cherry-aps/id6743092423"
-                    theme="dark"
-                    height={60}
-                    width={200}
-                  />
-                </div>
-                <div style={{ width: '200px', height: '60px' }}>
-                  <AppGalleryButton
-                    url="https://appgallery.huawei.com/app/C113682051"
-                    theme="dark"
-                    height={60}
-                    width={200}
-                  />
-                </div>
+            <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+              <div style={{ width: '200px', height: '60px' }}>
+                <GooglePlayButton
+                  url="https://play.google.com/store/apps/details?id=com.cherry.cherri"
+                  theme="dark"
+                  height={60}
+                  width={200}
+                />
+              </div>
+              <div style={{ width: '200px', height: '60px' }}>
+                <AppStoreButton
+                  url="https://apps.apple.com/za/app/cherry-aps/id6743092423"
+                  theme="dark"
+                  height={60}
+                  width={200}
+                />
+              </div>
+              <div style={{ width: '200px', height: '60px' }}>
+                <AppGalleryButton
+                  url="https://appgallery.huawei.com/app/C113682051"
+                  theme="dark"
+                  height={60}
+                  width={200}
+                />
               </div>
             </div>
           </motion.div>
