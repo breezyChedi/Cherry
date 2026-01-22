@@ -51,7 +51,6 @@ function useDeviceDetection() {
 
 export default function Home1Page() {
   const device = useDeviceDetection();
-  const [showWebAppLink, setShowWebAppLink] = useState(false);
 
   const getAppStoreUrl = () => {
     switch (device) {
@@ -99,23 +98,13 @@ export default function Home1Page() {
             <span className="text-2xl font-black text-black tracking-wider">CHERRY</span>
           </div>
           
-          <div className="flex flex-col items-end gap-2">
-            <a 
-              href={device === 'desktop' ? '/profile' : getAppStoreUrl()}
-              onClick={handleMainButtonClick}
-              className="bg-[#FF1493] text-white font-bold px-8 py-3 rounded-full hover:bg-pink-600 transition-all transform hover:scale-105 shadow-lg"
-            >
-              {device === 'desktop' ? 'Use Web App' : 'Download App'}
-            </a>
-            {device !== 'desktop' && (
-              <a 
-                href="/profile" 
-                className="text-sm text-gray-700 hover:text-pink-600 underline"
-              >
-                Or continue to web app
-              </a>
-            )}
-          </div>
+          <a 
+            href={device === 'desktop' ? '/profile' : getAppStoreUrl()}
+            onClick={handleMainButtonClick}
+            className="bg-[#FF1493] text-white font-bold px-8 py-3 rounded-full hover:bg-pink-600 transition-all transform hover:scale-105 shadow-lg"
+          >
+            {device === 'desktop' ? 'Use Web App' : 'Download App'}
+          </a>
         </div>
       </nav>
 
@@ -140,9 +129,9 @@ export default function Home1Page() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex justify-center mt-16"
+            className="flex justify-center mt-2 md:mt-16 -mx-4 md:mx-0"
           >
-            <div className="relative w-full max-w-3xl h-[500px] mx-auto transform hover:scale-105 transition-transform duration-300">
+            <div className="relative w-full md:max-w-3xl aspect-[3/2] mx-auto transform hover:scale-105 transition-transform duration-300">
               <Image
                 src="/HOME_PHOTOS/IMG_3113.PNG"
                 alt="Cherry App Preview"
@@ -206,7 +195,7 @@ export default function Home1Page() {
       </section>
 
       {/* Berry Informed */}
-      <section className="py-10 md:py-20 px-6 relative">
+      <section className="py-20 px-6 relative">
         <CloudDecoration className="absolute top-20 left-5 opacity-30" />
         <CloudDecoration className="absolute bottom-10 right-24 opacity-30" />
         <div className="max-w-4xl mx-auto">
@@ -217,8 +206,8 @@ export default function Home1Page() {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <div className="mb-4 md:mb-8 inline-block">
-              <div className="relative w-[510px] h-[680px] md:w-[300px] md:h-[400px]">
+            <div className="mb-8 inline-block">
+              <div className="relative w-[300px] h-[400px]">
                 <Image
                   src="/HOME_PHOTOS/42c0ffc0-0764-4f56-9ec6-0d975298381a.JPG"
                   alt="App Features"
@@ -236,16 +225,16 @@ export default function Home1Page() {
       </section>
 
       {/* Full Course Feast */}
-      <section className="py-10 md:py-20 px-6">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-2 md:py-20 px-0 md:px-6">
+        <div className="md:max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="grid md:grid-cols-2 gap-12 items-center"
+            className="grid md:grid-cols-2 gap-4 md:gap-12 items-center"
           >
-            <div className="relative w-full h-[850px] md:h-[500px]">
+            <div className="relative w-full aspect-[3/2]">
               <Image
                 src="/HOME_PHOTOS/IMG_3113.PNG"
                 alt="University Explorer"
@@ -253,7 +242,7 @@ export default function Home1Page() {
                 className="object-contain drop-shadow-2xl"
               />
             </div>
-            <div>
+            <div className="px-4 md:px-0">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: '#FF69B4' }}>
                   <Utensils size={32} className="text-white" />
@@ -269,18 +258,18 @@ export default function Home1Page() {
       </section>
 
       {/* Sow Your Seeds */}
-      <section className="py-10 md:py-20 px-6 relative">
+      <section className="py-2 md:py-20 px-0 md:px-6 relative">
         <CloudDecoration className="absolute top-10 right-20 opacity-30" />
         <CloudDecoration className="absolute bottom-10 left-1/4 opacity-35" />
-        <div className="max-w-6xl mx-auto">
+        <div className="md:max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="grid md:grid-cols-2 gap-12 items-center"
+            className="grid md:grid-cols-2 gap-4 md:gap-12 items-center"
           >
-            <div className="order-2 md:order-1">
+            <div className="order-2 md:order-1 px-4 md:px-0">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: '#FF69B4' }}>
                   <Droplet size={32} className="text-white" />
@@ -291,7 +280,7 @@ export default function Home1Page() {
                 <span className="text-pink-500 font-bold">Calculate your APS Score on the app.</span> With Cherry we help high school pupils & parents find courses the right courses for the future careers.
               </p>
             </div>
-            <div className="relative w-full h-[850px] md:h-[500px] order-1 md:order-2">
+            <div className="relative w-full aspect-[3/2] order-1 md:order-2">
               <Image
                 src="/HOME_PHOTOS/IMG_3112.PNG"
                 alt="APS Calculator"
