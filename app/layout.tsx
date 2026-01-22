@@ -86,6 +86,21 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     setValue(pathname);
   }, [pathname]);
 
+  // If we are on the home1 page, render a clean layout without the app shell
+  if (pathname?.startsWith('/home1')) {
+    return (
+      <html lang="en">
+        <head>
+          <title>Cherry</title>
+          <meta name="google-site-verification" content="bLl3duV6gX_tPcCXtnjOB9X-hyCMm4DG3MqeTEPjRZ0" />
+        </head>
+        <body style={{ margin: 0, padding: 0 }}>
+          {children}
+        </body>
+      </html>
+    );
+  }
+
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
     router.push(newValue);
