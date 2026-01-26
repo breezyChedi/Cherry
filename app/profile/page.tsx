@@ -1,30 +1,9 @@
-//app/profile/page.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import {
-  Tabs,
-  Tab,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Select,
-  MenuItem,
-  Snackbar,
-  Alert,
-  Container,
-  Paper,
-  Grid,
-  Divider,
-  InputAdornment,
-  IconButton,
-  FormControl,
-  InputLabel,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import Flag from 'react-world-flags';
 import { auth, db } from '../firebaseConfig';
 import {
@@ -32,21 +11,11 @@ import {
   signInWithEmailAndPassword,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import PersonIcon from '@mui/icons-material/Person';
-import SchoolIcon from '@mui/icons-material/School';
-import EmailIcon from '@mui/icons-material/Email';
-import PhoneIcon from '@mui/icons-material/Phone';
-import FlagIcon from '@mui/icons-material/Flag';
-import WcIcon from '@mui/icons-material/Wc';
-import LockIcon from '@mui/icons-material/Lock';
+import { Eye, EyeOff, User, School, Mail, Phone, MapPin, Users, Lock, Check, X } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState<'signup' | 'signin'>('signup');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -56,32 +25,6 @@ const ProfilePage: React.FC = () => {
     message: string;
     severity: 'success' | 'error';
   }>({ open: false, message: '', severity: 'success' });
-
-  // Handle tab switch
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
-
-  // Close Snackbar
-  const handleCloseSnackbar = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  // Toggle password visibility
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  // Toggle confirm password visibility
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
 
   // Gender options
   const genderOptions = ['Male', 'Female'];
@@ -96,12 +39,10 @@ const ProfilePage: React.FC = () => {
     { code: 'IN', name: 'India' },
     { code: 'CN', name: 'China' },
     { code: 'JP', name: 'Japan' },
-    // Add more countries as needed
   ];
 
-  // Sign Up form with gender and nationality dropdowns
+  // Sign Up form
   const SignUpForm: React.FC = () => {
-    // Form states
     const [name, setName] = useState('');
     const [surname, setSurname] = useState('');
     const [highSchool, setHighSchool] = useState('');
@@ -112,8 +53,6 @@ const ProfilePage: React.FC = () => {
     const [confirmEmail, setConfirmEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-
-    // Form validation states
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
 
@@ -130,29 +69,24 @@ const ProfilePage: React.FC = () => {
       e.preventDefault();
       let isValid = true;
 
-      // Reset errors
       setEmailError('');
       setPasswordError('');
 
-      // Validate email
       if (!validateEmail(email)) {
         setEmailError('Please enter a valid email address');
         isValid = false;
       }
 
-      // Validate password
       if (!validatePassword(password)) {
         setPasswordError('Password must be at least 8 characters long');
         isValid = false;
       }
 
-      // Check if emails match
       if (email !== confirmEmail) {
         setEmailError('Emails do not match');
         isValid = false;
       }
 
-      // Check if passwords match
       if (password !== confirmPassword) {
         setPasswordError('Passwords do not match');
         isValid = false;
@@ -161,15 +95,9 @@ const ProfilePage: React.FC = () => {
       if (!isValid) return;
 
       try {
-        // Create user with Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Save additional user data to Firestore
         await setDoc(doc(db, 'users', user.uid), {
           name,
           surname,
@@ -181,29 +109,15 @@ const ProfilePage: React.FC = () => {
           createdAt: new Date(),
         });
         
-        router.push('/profile/profileDetails');
-
-        // Show success Snackbar
         setSnackbar({
           open: true,
-          message: 'Sign-up successful!',
+          message: 'Account created successfully!',
           severity: 'success',
         });
 
-        // Reset the form
-        setName('');
-        setSurname('');
-        setHighSchool('');
-        setPhoneNumber('');
-        setGender('');
-        setNationality('South Africa');
-        setEmail('');
-        setConfirmEmail('');
-        setPassword('');
-        setConfirmPassword('');
+        setTimeout(() => router.push('/profile/profileDetails'), 1000);
 
       } catch (err: any) {
-        // Show error Snackbar
         setSnackbar({
           open: true,
           message: err.message || 'Sign-up failed.',
@@ -213,250 +127,219 @@ const ProfilePage: React.FC = () => {
     };
 
     return (
-      <Box component="form" onSubmit={handleSignUp} sx={{ mt: 3 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonIcon color="primary" />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Surname"
-              value={surname}
-              onChange={(e) => setSurname(e.target.value)}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonIcon color="primary" />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth required>
-              <InputLabel id="gender-label">Gender</InputLabel>
-              <Select
-                labelId="gender-label"
+      <motion.form
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
+        onSubmit={handleSignUp}
+        className="space-y-4"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors"
+                placeholder="Enter your name"
+              />
+            </div>
+          </div>
+
+          {/* Surname */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Surname</label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+              <input
+                type="text"
+                value={surname}
+                onChange={(e) => setSurname(e.target.value)}
+                required
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors"
+                placeholder="Enter your surname"
+              />
+            </div>
+          </div>
+
+          {/* Gender */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
+            <div className="relative">
+              <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500 z-10" size={20} />
+              <select
                 value={gender}
-                onChange={(e) => setGender(e.target.value as string)}
-                label="Gender"
-                startAdornment={
-                  <InputAdornment position="start">
-                    <WcIcon color="primary" />
-                  </InputAdornment>
-                }
+                onChange={(e) => setGender(e.target.value)}
+                required
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors appearance-none bg-white"
               >
+                <option value="">Select gender</option>
                 {genderOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
+                  <option key={option} value={option}>{option}</option>
                 ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="High School"
-              value={highSchool}
-              onChange={(e) => setHighSchool(e.target.value)}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SchoolIcon color="primary" />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Phone Number"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PhoneIcon color="primary" />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth required>
-              <InputLabel id="nationality-label">Nationality</InputLabel>
-              <Select
-                labelId="nationality-label"
+              </select>
+            </div>
+          </div>
+
+          {/* High School */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">High School</label>
+            <div className="relative">
+              <School className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+              <input
+                type="text"
+                value={highSchool}
+                onChange={(e) => setHighSchool(e.target.value)}
+                required
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors"
+                placeholder="Your high school"
+              />
+            </div>
+          </div>
+
+          {/* Phone Number */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                required
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors"
+                placeholder="+27 123 456 7890"
+              />
+            </div>
+          </div>
+
+          {/* Nationality */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Nationality</label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500 z-10" size={20} />
+              <select
                 value={nationality}
-                onChange={(e) => setNationality(e.target.value as string)}
-                label="Nationality"
-                startAdornment={
-                  <InputAdornment position="start">
-                    <FlagIcon color="primary" />
-                  </InputAdornment>
-                }
+                onChange={(e) => setNationality(e.target.value)}
+                required
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors appearance-none bg-white"
               >
                 {countries.map((country) => (
-                  <MenuItem key={country.code} value={country.name}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Flag
-                        code={country.code.toLowerCase()}
-                        style={{ width: 20, marginRight: 8 }}
-                      />
-                      {country.name}
-                    </Box>
-                  </MenuItem>
+                  <option key={country.code} value={country.name}>
+                    {country.name}
+                  </option>
                 ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12}>
-            <Divider sx={{ my: 1 }}>
-              <Typography variant="caption" color="text.secondary">
-                ACCOUNT DETAILS
-              </Typography>
-            </Divider>
-          </Grid>
-          
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Email Address"
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 py-4">
+          <div className="flex-1 h-px bg-gray-200"></div>
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Account Details</span>
+          <div className="flex-1 h-px bg-gray-200"></div>
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+            <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              error={!!emailError}
-              helperText={emailError}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <EmailIcon color="primary" />
-                  </InputAdornment>
-                ),
-              }}
+              className={`w-full pl-11 pr-4 py-3 border-2 rounded-xl focus:outline-none transition-colors ${
+                emailError ? 'border-red-500' : 'border-gray-200 focus:border-pink-500'
+              }`}
+              placeholder="your@email.com"
             />
-          </Grid>
-          
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Confirm Email Address"
+          </div>
+          {emailError && <p className="mt-1 text-sm text-red-500">{emailError}</p>}
+        </div>
+
+        {/* Confirm Email */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm Email</label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+            <input
               type="email"
               value={confirmEmail}
               onChange={(e) => setConfirmEmail(e.target.value)}
               required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <EmailIcon color="primary" />
-                  </InputAdornment>
-                ),
-              }}
+              className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors"
+              placeholder="Confirm your email"
             />
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              error={!!passwordError}
-              helperText={passwordError}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockIcon color="primary" />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={togglePasswordVisibility}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Confirm Password"
-              type={showConfirmPassword ? "text" : "password"}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockIcon color="primary" />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={toggleConfirmPasswordVisibility}
-                      edge="end"
-                    >
-                      {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-        </Grid>
+          </div>
+        </div>
 
-        <Button
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className={`w-full pl-11 pr-12 py-3 border-2 rounded-xl focus:outline-none transition-colors ${
+                  passwordError ? 'border-red-500' : 'border-gray-200 focus:border-pink-500'
+                }`}
+                placeholder="Min. 8 characters"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-pink-500 transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {passwordError && <p className="mt-1 text-sm text-red-500">{passwordError}</p>}
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="w-full pl-11 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors"
+                placeholder="Confirm password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-pink-500 transition-colors"
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button
           type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ 
-            mt: 4, 
-            mb: 2, 
-            py: 1.5, 
-            borderRadius: 2,
-            fontWeight: 'bold',
-            background: 'linear-gradient(45deg, #9c27b0 30%, #d81b60 90%)',
-            boxShadow: '0 3px 5px 2px rgba(156, 39, 176, .3)'
-          }}
+          className="w-full bg-gradient-to-r from-[#FF1493] to-[#FF69B4] text-white font-bold py-4 rounded-xl hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 mt-6"
         >
           Create Account
-        </Button>
-      </Box>
+        </button>
+      </motion.form>
     );
   };
 
@@ -472,21 +355,15 @@ const ProfilePage: React.FC = () => {
       
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        // Show success Snackbar
         setSnackbar({
           open: true,
-          message: 'Sign-in successful!',
+          message: 'Welcome back!',
           severity: 'success',
         });
 
-        // Reset the form
-        setEmail('');
-        setPassword('');
-
-        router.push('/profile/profileDetails');
+        setTimeout(() => router.push('/profile/profileDetails'), 1000);
 
       } catch (err: any) {
-        // Show appropriate error messages
         if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
           setEmailError('Invalid email or password');
         } else {
@@ -500,176 +377,183 @@ const ProfilePage: React.FC = () => {
     };
 
     return (
-      <Box component="form" onSubmit={handleSignIn} sx={{ mt: 3 }}>
-        <TextField
-          fullWidth
-          label="Email Address"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          error={!!emailError}
-          helperText={emailError}
-          sx={{ mb: 2 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <EmailIcon color="primary" />
-              </InputAdornment>
-            ),
-          }}
-        />
-        <TextField
-          fullWidth
-          label="Password"
-          type={showPassword ? "text" : "password"}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <LockIcon color="primary" />
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={togglePasswordVisibility}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
+      <motion.form
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
+        onSubmit={handleSignIn}
+        className="space-y-6"
+      >
+        {/* Email */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className={`w-full pl-11 pr-4 py-3 border-2 rounded-xl focus:outline-none transition-colors ${
+                emailError ? 'border-red-500' : 'border-gray-200 focus:border-pink-500'
+              }`}
+              placeholder="your@email.com"
+            />
+          </div>
+          {emailError && <p className="mt-1 text-sm text-red-500">{emailError}</p>}
+        </div>
 
-        <Button
+        {/* Password */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full pl-11 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors"
+              placeholder="Enter your password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-pink-500 transition-colors"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+        </div>
+
+        <button
           type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ 
-            mt: 4, 
-            mb: 2,
-            py: 1.5, 
-            borderRadius: 2,
-            fontWeight: 'bold',
-            background: 'linear-gradient(45deg, #9c27b0 30%, #d81b60 90%)',
-            boxShadow: '0 3px 5px 2px rgba(156, 39, 176, .3)'
-          }}
+          className="w-full bg-gradient-to-r from-[#FF1493] to-[#FF69B4] text-white font-bold py-4 rounded-xl hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200"
         >
           Sign In
-        </Button>
-        
-        <Button
-          variant="outlined"
-          color="primary"
-          fullWidth
-          sx={{ 
-            mb: 2,
-            py: 1.2,
-            borderRadius: 2
-          }}
+        </button>
+
+        <button
+          type="button"
+          className="w-full border-2 border-pink-500 text-pink-500 font-semibold py-3 rounded-xl hover:bg-pink-50 transition-colors"
         >
-          Forgot Password
-        </Button>
-      </Box>
+          Forgot Password?
+        </button>
+      </motion.form>
     );
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper 
-        elevation={3} 
-        sx={{ 
-          borderRadius: 2,
-          overflow: 'hidden',
-          backgroundColor: 'white',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-        }}
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #fddeff 0%, #ffe4f5 100%)' }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden"
       >
-        {/* Header with logo or brand */}
-        <Box 
-          sx={{ 
-            bgcolor: 'primary.dark', 
-            py: 3, 
-            textAlign: 'center',
-            borderBottom: '5px solid',
-            borderImage: 'linear-gradient(to right, #9c27b0, #d81b60) 1'
-          }}
-        >
-          <Typography 
-            variant="h4" 
-            component="h1" 
-            color="white"
-            fontWeight="bold"
-          >
-            Welcome to Cherry
-          </Typography>
-          <Typography 
-            variant="subtitle1" 
-            color="rgba(255,255,255,0.8)"
-          >
-            {activeTab === 0 ? 'Create an account to start your journey' : 'Sign in to your account'}
-          </Typography>
-        </Box>
-        
+        {/* Header */}
+        <div className="relative bg-gradient-to-r from-[#FF1493] to-[#FF69B4] px-8 py-12 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="relative w-16 h-16">
+              <Image 
+                src="/cherryLogoPng.png" 
+                alt="Cherry Logo" 
+                fill 
+                className="object-contain"
+                priority
+              />
+            </div>
+          </div>
+          <h1 className="text-4xl font-black text-white mb-2">Welcome to Cherry</h1>
+          <p className="text-pink-100 text-lg">
+            {activeTab === 'signup' ? 'Create your account and start exploring' : 'Sign in to continue your journey'}
+          </p>
+        </div>
+
         {/* Tabs */}
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          variant="fullWidth"
-          sx={{
-            borderBottom: 1,
-            borderColor: 'divider',
-            '.MuiTabs-indicator': {
-              height: 3,
-              borderRadius: '3px 3px 0 0',
-              background: 'linear-gradient(to right, #9c27b0, #d81b60)',
-            },
-          }}
-        >
-          <Tab 
-            label={
-              <Box sx={{ py: 1, fontWeight: activeTab === 0 ? 'bold' : 'normal' }}>
-                Sign up
-              </Box>
-            }
-          />
-          <Tab 
-            label={
-              <Box sx={{ py: 1, fontWeight: activeTab === 1 ? 'bold' : 'normal' }}>
-                Sign in
-              </Box>
-            }
-          />
-        </Tabs>
+        <div className="flex border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('signup')}
+            className={`flex-1 py-4 text-center font-bold transition-all relative ${
+              activeTab === 'signup'
+                ? 'text-pink-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Sign Up
+            {activeTab === 'signup' && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF1493] to-[#FF69B4]"
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('signin')}
+            className={`flex-1 py-4 text-center font-bold transition-all relative ${
+              activeTab === 'signin'
+                ? 'text-pink-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Sign In
+            {activeTab === 'signin' && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF1493] to-[#FF69B4]"
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            )}
+          </button>
+        </div>
 
-        <Box sx={{ p: isDesktop ? 4 : 2 }}>
-          {/* Render the forms conditionally based on the active tab */}
-          {activeTab === 0 ? <SignUpForm /> : <SignInForm />}
-        </Box>
-      </Paper>
+        {/* Form Content */}
+        <div className="p-8 md:p-12">
+          <AnimatePresence mode="wait">
+            {activeTab === 'signup' ? (
+              <SignUpForm key="signup" />
+            ) : (
+              <SignInForm key="signin" />
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
 
-      {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-          variant="filled"
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Container>
+      {/* Snackbar Notification */}
+      <AnimatePresence>
+        {snackbar.open && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50"
+          >
+            <div
+              className={`flex items-center gap-3 px-6 py-4 rounded-xl shadow-lg ${
+                snackbar.severity === 'success'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-red-500 text-white'
+              }`}
+            >
+              {snackbar.severity === 'success' ? (
+                <Check size={24} />
+              ) : (
+                <X size={24} />
+              )}
+              <span className="font-semibold">{snackbar.message}</span>
+              <button
+                onClick={() => setSnackbar({ ...snackbar, open: false })}
+                className="ml-4 hover:opacity-80 transition-opacity"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
