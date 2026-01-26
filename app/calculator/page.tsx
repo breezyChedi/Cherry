@@ -1,13 +1,32 @@
-'use client';
+// app/calculator/page.tsx
 
+'use client';
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import {
+    Snackbar,
+    Alert,
+    Select,
+    MenuItem,
+    TextField,
+    Button,
+    Typography,
+    Grid,
+    CircularProgress,
+    Tooltip,
+    Container,
+    Box,
+    Paper,
+    useMediaQuery,
+    useTheme,
+} from '@mui/material';
 import Image from 'next/image';
+import cherryLogoPng from '../icons/cherryLogoPng.png';
+
 import { useRouter } from 'next/navigation';
 import { auth, db } from '../firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { Calculator, BookOpen, Save, ExternalLink, Check, X } from 'lucide-react';
 
 const mathSubjects = ['Mathematics', 'Mathematical Literacy'];
 const homeLanguages = ['English HL', 'Afrikaans HL', 'isiZulu HL'];
@@ -34,9 +53,11 @@ const allSubjects = [
 ];
 
 const CalculatorPage: React.FC = () => {
+    const theme = useTheme();
+    const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+    
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    
     const [subject1, setSubject1] = useState('');
     const [subject2, setSubject2] = useState('');
     const [subject3, setSubject3] = useState('');
@@ -56,13 +77,9 @@ const CalculatorPage: React.FC = () => {
     const [nbtMAT, setNbtMAT] = useState('');
 
     const [apsScoreLoc, setApsScore] = useState(0);
-    const [showResult, setShowResult] = useState(false);
 
-    const [snackbar, setSnackbar] = useState<{
-        open: boolean;
-        message: string;
-        severity: 'success' | 'error';
-    }>({ open: false, message: '', severity: 'success' });
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const [options4, setOptions4] = useState<string[]>(allSubjects);
     const [options5, setOptions5] = useState<string[]>(allSubjects);
@@ -96,6 +113,7 @@ const CalculatorPage: React.FC = () => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             setIsAuthenticated(!!user);
         });
+
         return () => unsubscribe();
     }, []);
 
@@ -110,12 +128,16 @@ const CalculatorPage: React.FC = () => {
     };
 
     const calculateAndDisplayAPS = () => {
-        if (!subject1 || !subject2 || !subject3 || !subject4 || !subject5 || !subject6) {
-            setSnackbar({
-                open: true,
-                message: 'Please select all 6 subjects.',
-                severity: 'error',
-            });
+        if (
+            !subject1 ||
+            !subject2 ||
+            !subject3 ||
+            !subject4 ||
+            !subject5 ||
+            !subject6
+        ) {
+            setErrorMessage('Please select all 6 subjects.');
+            setErrorOpen(true);
             return;
         }
 
@@ -132,7 +154,6 @@ const CalculatorPage: React.FC = () => {
         const totalAPS = points.reduce((acc, curr) => acc + curr, 0);
 
         setApsScore(totalAPS);
-        setShowResult(true);
     };
 
     const handleSaveToProfile = async () => {
@@ -147,377 +168,636 @@ const CalculatorPage: React.FC = () => {
 
             const profileData = {
                 apsScore: apsScoreLoc,
-                subjects: { subject1, subject2, subject3, subject4, subject5, subject6 },
-                marks: { mark1, mark2, mark3, mark4, mark5, mark6 },
-                nbtScores: { nbtAL, nbtQL, nbtMAT },
+                subjects: {
+                    subject1,
+                    subject2,
+                    subject3,
+                    subject4,
+                    subject5,
+                    subject6,
+                },
+                marks: {
+                    mark1,
+                    mark2,
+                    mark3,
+                    mark4,
+                    mark5,
+                    mark6,
+                },
+                nbtScores: {
+                    nbtAL,
+                    nbtQL,
+                    nbtMAT,
+                },
                 savedAt: new Date(),
             };
 
             await setDoc(doc(db, 'profiles', user.uid), profileData);
 
-            setSnackbar({
-                open: true,
-                message: 'Profile saved successfully!',
-                severity: 'success',
-            });
+            setErrorMessage('Profile saved successfully!');
+            setErrorOpen(true);
         } catch (error: any) {
-            setSnackbar({
-                open: true,
-                message: error.message || 'Failed to save profile.',
-                severity: 'error',
-            });
+            setErrorMessage(error.message || 'Failed to save profile.');
+            setErrorOpen(true);
         }
     };
 
     return (
-        <div className="min-h-screen py-8 px-4" style={{ background: 'linear-gradient(135deg, #fddeff 0%, #ffe4f5 100%)' }}>
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-8"
+        <Container 
+            maxWidth="lg" 
+            sx={{ 
+                py: 4,
+                background: 'linear-gradient(135deg, #fddeff 0%, #ffe4f5 100%)',
+                minHeight: 'calc(100vh - 64px)'
+            }}
+        >
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                <Paper 
+                    elevation={6} 
+                    sx={{ 
+                        p: 4, 
+                        borderRadius: 4,
+                        background: 'white',
+                        boxShadow: '0 8px 32px rgba(255, 20, 147, 0.15)'
+                    }}
                 >
-                    <div className="flex justify-center items-center gap-3 mb-3">
-                        <Calculator className="text-pink-600" size={40} />
-                        <h1 className="text-5xl font-black text-pink-600">APS Calculator</h1>
-                    </div>
-                    <p className="text-gray-600 text-lg">Calculate your Admission Point Score for university applications</p>
-                </motion.div>
-
-                <div className="grid lg:grid-cols-3 gap-8">
-                    {/* Main Form Section */}
-                    <div className="lg:col-span-2">
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="bg-white rounded-3xl shadow-2xl p-8"
-                        >
-                            {/* Core Subjects */}
-                            <div className="mb-8">
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                    <BookOpen className="text-pink-500" size={24} />
-                                    Core Subjects
-                                </h2>
-                                
-                                <div className="space-y-4">
-                                    {/* Subject 1 */}
-                                    <SubjectRow
-                                        label="Mathematics"
-                                        value={subject1}
-                                        onChange={setSubject1}
-                                        options={mathSubjects}
-                                        mark={mark1}
-                                        onMarkChange={setMark1}
-                                    />
-                                    
-                                    {/* Subject 2 */}
-                                    <SubjectRow
-                                        label="Home Language"
-                                        value={subject2}
-                                        onChange={setSubject2}
-                                        options={homeLanguages}
-                                        mark={mark2}
-                                        onMarkChange={setMark2}
-                                    />
-                                    
-                                    {/* Subject 3 */}
-                                    <SubjectRow
-                                        label="Additional Language"
-                                        value={subject3}
-                                        onChange={setSubject3}
-                                        options={additionalLanguages}
-                                        mark={mark3}
-                                        onMarkChange={setMark3}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Elective Subjects */}
-                            <div className="mb-8">
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                    <BookOpen className="text-pink-500" size={24} />
-                                    Elective Subjects
-                                </h2>
-                                
-                                <div className="space-y-4">
-                                    <SubjectRow
-                                        label="Subject 4"
-                                        value={subject4}
-                                        onChange={setSubject4}
-                                        options={options4}
-                                        mark={mark4}
-                                        onMarkChange={setMark4}
-                                    />
-                                    
-                                    <SubjectRow
-                                        label="Subject 5"
-                                        value={subject5}
-                                        onChange={setSubject5}
-                                        options={options5}
-                                        mark={mark5}
-                                        onMarkChange={setMark5}
-                                    />
-                                    
-                                    <SubjectRow
-                                        label="Subject 6"
-                                        value={subject6}
-                                        onChange={setSubject6}
-                                        options={options6}
-                                        mark={mark6}
-                                        onMarkChange={setMark6}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* NBT Scores */}
-                            <div className="border-t-2 border-gray-100 pt-8">
-                                <h2 className="text-2xl font-bold text-gray-800 mb-4">National Benchmark Test Scores</h2>
-                                <div className="grid md:grid-cols-3 gap-4">
-                                    <NBTInput
-                                        label="Academic Literacy"
-                                        abbr="AL"
-                                        value={nbtAL}
-                                        onChange={setNbtAL}
-                                    />
-                                    <NBTInput
-                                        label="Quantitative Literacy"
-                                        abbr="QL"
-                                        value={nbtQL}
-                                        onChange={setNbtQL}
-                                    />
-                                    <NBTInput
-                                        label="Mathematics"
-                                        abbr="MAT"
-                                        value={nbtMAT}
-                                        onChange={setNbtMAT}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Calculate Button */}
-                            <button
-                                onClick={calculateAndDisplayAPS}
-                                className="w-full mt-8 bg-gradient-to-r from-[#FF1493] to-[#FF69B4] text-white font-bold py-4 rounded-xl hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2"
-                            >
-                                <Calculator size={24} />
-                                Calculate APS Score
-                            </button>
-                        </motion.div>
-                    </div>
-
-                    {/* Results Sidebar */}
-                    <div className="lg:col-span-1">
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="bg-white rounded-3xl shadow-2xl p-8 sticky top-8"
-                        >
-                            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Your APS Score</h2>
-                            
-                            {/* Circular Progress */}
-                            <div className="flex justify-center mb-6">
-                                <div className="relative w-48 h-48">
-                                    <svg className="transform -rotate-90 w-48 h-48">
-                                        <circle
-                                            cx="96"
-                                            cy="96"
-                                            r="88"
-                                            stroke="#f0f0f0"
-                                            strokeWidth="12"
-                                            fill="none"
-                                        />
-                                        <motion.circle
-                                            cx="96"
-                                            cy="96"
-                                            r="88"
-                                            stroke="url(#gradient)"
-                                            strokeWidth="12"
-                                            fill="none"
-                                            strokeLinecap="round"
-                                            initial={{ strokeDasharray: "0 552" }}
-                                            animate={{ 
-                                                strokeDasharray: `${(apsScoreLoc / 42) * 552} 552` 
-                                            }}
-                                            transition={{ duration: 1, ease: "easeOut" }}
-                                        />
-                                        <defs>
-                                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                <stop offset="0%" stopColor="#FF1493" />
-                                                <stop offset="100%" stopColor="#FF69B4" />
-                                            </linearGradient>
-                                        </defs>
-                                    </svg>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <div className="relative w-12 h-12 mb-2">
-                                            <Image 
-                                                src="/cherryLogoPng.png" 
-                                                alt="Cherry Logo" 
-                                                fill 
-                                                className="object-contain"
-                                            />
-                                        </div>
-                                        <AnimatePresence mode="wait">
-                                            <motion.span
-                                                key={apsScoreLoc}
-                                                initial={{ scale: 0.5, opacity: 0 }}
-                                                animate={{ scale: 1, opacity: 1 }}
-                                                exit={{ scale: 0.5, opacity: 0 }}
-                                                className="text-5xl font-black text-pink-600"
-                                            >
-                                                {apsScoreLoc}
-                                            </motion.span>
-                                        </AnimatePresence>
-                                        <span className="text-sm text-gray-500 mt-1">out of 42</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {showResult && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="mb-6"
-                                >
-                                    <div className={`p-4 rounded-xl ${
-                                        apsScoreLoc >= 30 ? 'bg-green-50 border-2 border-green-500' :
-                                        apsScoreLoc >= 20 ? 'bg-yellow-50 border-2 border-yellow-500' :
-                                        'bg-red-50 border-2 border-red-500'
-                                    }`}>
-                                        <p className="text-center font-semibold text-gray-700">
-                                            {apsScoreLoc >= 30 ? 'Excellent Score!' :
-                                             apsScoreLoc >= 20 ? 'Good Score!' :
-                                             'Keep Working!'}
-                                        </p>
-                                        <p className="text-center text-sm text-gray-600 mt-1">
-                                            {apsScoreLoc >= 30 ? 'You qualify for most programs' :
-                                             apsScoreLoc >= 20 ? 'You qualify for many programs' :
-                                             'Consider improving your marks'}
-                                        </p>
-                                    </div>
-                                </motion.div>
-                            )}
-
-                            {/* Action Buttons */}
-                            <div className="space-y-3">
-                                <button
-                                    onClick={handleSaveToProfile}
-                                    className="w-full bg-gradient-to-r from-[#FF1493] to-[#FF69B4] text-white font-semibold py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                                >
-                                    <Save size={20} />
-                                    Save to Profile
-                                </button>
-                                
-                                <button
-                                    onClick={() => window.open('https://nbtests.uct.ac.za/', '_blank', 'noopener,noreferrer')}
-                                    className="w-full border-2 border-pink-500 text-pink-600 font-semibold py-3 rounded-xl hover:bg-pink-50 transition-all flex items-center justify-center gap-2"
-                                >
-                                    <ExternalLink size={20} />
-                                    Book NBT Test
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Snackbar Notification */}
-            <AnimatePresence>
-                {snackbar.open && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 50 }}
-                        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50"
+                    <Typography 
+                        variant="h3" 
+                        gutterBottom 
+                        align="center" 
+                        sx={{ 
+                            mb: 4, 
+                            fontWeight: 900,
+                            background: 'linear-gradient(45deg, #FF1493 30%, #FF69B4 90%)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
                     >
-                        <div
-                            className={`flex items-center gap-3 px-6 py-4 rounded-xl shadow-lg ${
-                                snackbar.severity === 'success'
-                                    ? 'bg-green-500 text-white'
-                                    : 'bg-red-500 text-white'
-                            }`}
+                        APS Calculator
+                    </Typography>
+                    
+                    <Box sx={{ maxWidth: isDesktop ? '90%' : '100%', mx: 'auto' }}>
+                        <Grid container spacing={4}>
+                            <Grid item xs={12} md={6}>
+                                <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: '#FF1493', mb: 3 }}>
+                                    Core Subjects
+                                </Typography>
+                                
+                                {/* Subject 1 */}
+                                <Grid container spacing={2} mb={3}>
+                                    <Grid item xs={8}>
+                                        <Select
+                                            fullWidth
+                                            value={subject1}
+                                            onChange={(e) => setSubject1(e.target.value as string)}
+                                            displayEmpty
+                                            sx={{ 
+                                                borderRadius: 2,
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'rgba(255, 20, 147, 0.3)',
+                                                },
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                Select Mathematics
+                                            </MenuItem>
+                                            {mathSubjects.map((subject) => (
+                                                <MenuItem key={subject} value={subject}>
+                                                    {subject}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        <TextField
+                                            fullWidth
+                                            label="Mark %"
+                                            value={mark1}
+                                            onChange={(e) => setMark1(e.target.value)}
+                                            type="number"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#FF1493' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#FF1493' }
+                                                }
+                                            }}
+                                        />
+                                    </Grid>
+                                </Grid>
+
+                                {/* Subject 2 */}
+                                <Grid container spacing={2} mb={3}>
+                                    <Grid item xs={8}>
+                                        <Select
+                                            fullWidth
+                                            value={subject2}
+                                            onChange={(e) => setSubject2(e.target.value as string)}
+                                            displayEmpty
+                                            sx={{ 
+                                                borderRadius: 2,
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'rgba(255, 20, 147, 0.3)',
+                                                },
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                Select Home Language
+                                            </MenuItem>
+                                            {homeLanguages.map((subject) => (
+                                                <MenuItem key={subject} value={subject}>
+                                                    {subject}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        <TextField
+                                            fullWidth
+                                            label="Mark %"
+                                            value={mark2}
+                                            onChange={(e) => setMark2(e.target.value)}
+                                            type="number"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#FF1493' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#FF1493' }
+                                                }
+                                            }}
+                                        />
+                                    </Grid>
+                                </Grid>
+
+                                {/* Subject 3 */}
+                                <Grid container spacing={2} mb={3}>
+                                    <Grid item xs={8}>
+                                        <Select
+                                            fullWidth
+                                            value={subject3}
+                                            onChange={(e) => setSubject3(e.target.value as string)}
+                                            displayEmpty
+                                            sx={{ 
+                                                borderRadius: 2,
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'rgba(255, 20, 147, 0.3)',
+                                                },
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                Select Additional Language
+                                            </MenuItem>
+                                            {additionalLanguages.map((subject) => (
+                                                <MenuItem key={subject} value={subject}>
+                                                    {subject}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        <TextField
+                                            fullWidth
+                                            label="Mark %"
+                                            value={mark3}
+                                            onChange={(e) => setMark3(e.target.value)}
+                                            type="number"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#FF1493' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#FF1493' }
+                                                }
+                                            }}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, color: '#FF1493', mb: 3 }}>
+                                    Elective Subjects
+                                </Typography>
+                                
+                                {/* Subject 4 */}
+                                <Grid container spacing={2} mb={3}>
+                                    <Grid item xs={8}>
+                                        <Select
+                                            fullWidth
+                                            value={subject4}
+                                            onChange={(e) => setSubject4(e.target.value as string)}
+                                            displayEmpty
+                                            sx={{ 
+                                                borderRadius: 2,
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'rgba(255, 20, 147, 0.3)',
+                                                },
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                Select Subject 4
+                                            </MenuItem>
+                                            {options4.map((subject) => (
+                                                <MenuItem key={subject} value={subject}>
+                                                    {subject}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        <TextField
+                                            fullWidth
+                                            label="Mark %"
+                                            value={mark4}
+                                            onChange={(e) => setMark4(e.target.value)}
+                                            type="number"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#FF1493' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#FF1493' }
+                                                }
+                                            }}
+                                        />
+                                    </Grid>
+                                </Grid>
+
+                                {/* Subject 5 */}
+                                <Grid container spacing={2} mb={3}>
+                                    <Grid item xs={8}>
+                                        <Select
+                                            fullWidth
+                                            value={subject5}
+                                            onChange={(e) => setSubject5(e.target.value as string)}
+                                            displayEmpty
+                                            sx={{ 
+                                                borderRadius: 2,
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'rgba(255, 20, 147, 0.3)',
+                                                },
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                Select Subject 5
+                                            </MenuItem>
+                                            {options5.map((subject) => (
+                                                <MenuItem key={subject} value={subject}>
+                                                    {subject}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        <TextField
+                                            fullWidth
+                                            label="Mark %"
+                                            value={mark5}
+                                            onChange={(e) => setMark5(e.target.value)}
+                                            type="number"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#FF1493' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#FF1493' }
+                                                }
+                                            }}
+                                        />
+                                    </Grid>
+                                </Grid>
+
+                                {/* Subject 6 */}
+                                <Grid container spacing={2} mb={3}>
+                                    <Grid item xs={8}>
+                                        <Select
+                                            fullWidth
+                                            value={subject6}
+                                            onChange={(e) => setSubject6(e.target.value as string)}
+                                            displayEmpty
+                                            sx={{ 
+                                                borderRadius: 2,
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'rgba(255, 20, 147, 0.3)',
+                                                },
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#FF1493',
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                Select Subject 6
+                                            </MenuItem>
+                                            {options6.map((subject) => (
+                                                <MenuItem key={subject} value={subject}>
+                                                    {subject}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        <TextField
+                                            fullWidth
+                                            label="Mark %"
+                                            value={mark6}
+                                            onChange={(e) => setMark6(e.target.value)}
+                                            type="number"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#FF1493' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#FF1493' }
+                                                }
+                                            }}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+
+                        {/* APS Score Display */}
+                        <Box 
+                            sx={{
+                                mt: 5,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
                         >
-                            {snackbar.severity === 'success' ? <Check size={24} /> : <X size={24} />}
-                            <span className="font-semibold">{snackbar.message}</span>
-                            <button
-                                onClick={() => setSnackbar({ ...snackbar, open: false })}
-                                className="ml-4 hover:opacity-80 transition-opacity"
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
                             >
-                                <X size={20} />
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-};
+                                <Box 
+                                    sx={{ 
+                                        position: 'relative', 
+                                        display: 'inline-block',
+                                        textAlign: 'center',
+                                        width: 160, 
+                                        height: 160,
+                                    }}
+                                >
+                                    <CircularProgress
+                                        variant="determinate"
+                                        value={(apsScoreLoc / 42) * 100}
+                                        size={160}
+                                        thickness={6}
+                                        sx={{ 
+                                            color: '#FF1493',
+                                            position: 'absolute',
+                                            left: 0,
+                                            filter: 'drop-shadow(0 4px 8px rgba(255, 20, 147, 0.3))'
+                                        }}
+                                    />
+                                    <Box
+                                        sx={{
+                                            top: 0,
+                                            left: 0,
+                                            bottom: 0,
+                                            right: 0,
+                                            position: 'absolute',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            flexDirection: 'column',
+                                        }}
+                                    >
+                                        <Image 
+                                            src={cherryLogoPng} 
+                                            alt="Cherry Logo" 
+                                            width={55} 
+                                            height={55} 
+                                        />
+                                        <Typography 
+                                            variant="h3" 
+                                            sx={{ 
+                                                color: '#FF1493',
+                                                fontWeight: 900, 
+                                                mt: 1,
+                                            }}
+                                        >
+                                            {apsScoreLoc}
+                                        </Typography>
+                                        <Typography 
+                                            variant="caption" 
+                                            sx={{ 
+                                                color: '#666',
+                                                fontSize: '11px',
+                                                fontWeight: 600
+                                            }}
+                                        >
+                                            APS Score
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            </motion.div>
+                        </Box>
 
-// Subject Row Component
-const SubjectRow: React.FC<{
-    label: string;
-    value: string;
-    onChange: (value: string) => void;
-    options: string[];
-    mark: string;
-    onMarkChange: (value: string) => void;
-}> = ({ label, value, onChange, options, mark, onMarkChange }) => {
-    return (
-        <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
-                <select
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors bg-white"
+                        {/* Calculate Button */}
+                        <Box sx={{ mt: 5, textAlign: 'center' }}>
+                            <Button
+                                variant="contained"
+                                onClick={calculateAndDisplayAPS}
+                                size="large"
+                                sx={{ 
+                                    px: 6, 
+                                    py: 2, 
+                                    borderRadius: 3, 
+                                    fontWeight: 'bold',
+                                    fontSize: '16px',
+                                    background: 'linear-gradient(45deg, #FF1493 30%, #FF69B4 90%)',
+                                    textTransform: 'none',
+                                    boxShadow: '0 4px 15px rgba(255, 20, 147, 0.3)',
+                                    '&:hover': {
+                                        background: 'linear-gradient(45deg, #FF1493 20%, #FF69B4 80%)',
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: '0 6px 20px rgba(255, 20, 147, 0.4)',
+                                    },
+                                    transition: 'all 0.3s'
+                                }}
+                            >
+                                Calculate APS Score
+                            </Button>
+                        </Box>
+
+                        {/* NBT Section */}
+                        <Box sx={{ mt: 6 }}>
+                            <Typography variant="h5" gutterBottom align="center" sx={{ fontWeight: 700, color: '#FF1493', mb: 3 }}>
+                                National Benchmark Test (NBT) Scores
+                            </Typography>
+                            <Grid container spacing={3} justifyContent="center">
+                                <Grid item xs={12} sm={4}>
+                                    <Tooltip title="Academic Literacy" placement="top">
+                                        <TextField
+                                            fullWidth
+                                            label="NBT Academic Literacy"
+                                            value={nbtAL}
+                                            onChange={(e) => setNbtAL(e.target.value)}
+                                            type="number"
+                                            InputProps={{
+                                                startAdornment: <Box component="span" sx={{ mr: 1, color: '#FF1493', fontWeight: 'bold' }}>AL</Box>,
+                                            }}
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#FF1493' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#FF1493' }
+                                                }
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </Grid>
+                                <Grid item xs={12} sm={4}>
+                                    <Tooltip title="Quantitative Literacy" placement="top">
+                                        <TextField
+                                            fullWidth
+                                            label="NBT Quantitative Literacy"
+                                            value={nbtQL}
+                                            onChange={(e) => setNbtQL(e.target.value)}
+                                            type="number"
+                                            InputProps={{
+                                                startAdornment: <Box component="span" sx={{ mr: 1, color: '#FF1493', fontWeight: 'bold' }}>QL</Box>,
+                                            }}
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#FF1493' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#FF1493' }
+                                                }
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </Grid>
+                                <Grid item xs={12} sm={4}>
+                                    <Tooltip title="Mathematics" placement="top">
+                                        <TextField
+                                            fullWidth
+                                            label="NBT Mathematics"
+                                            value={nbtMAT}
+                                            onChange={(e) => setNbtMAT(e.target.value)}
+                                            type="number"
+                                            InputProps={{
+                                                startAdornment: <Box component="span" sx={{ mr: 1, color: '#FF1493', fontWeight: 'bold' }}>MAT</Box>,
+                                            }}
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#FF1493' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#FF1493' }
+                                                }
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </Grid>
+                            </Grid>
+                        </Box>
+
+                        {/* Action Buttons */}
+                        <Box sx={{ mt: 5, display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 3, mb: 2 }}>
+                            <Button
+                                variant="outlined"
+                                onClick={() => {
+                                    window.open('https://nbtests.uct.ac.za/', '_blank', 'noopener,noreferrer');
+                                }}
+                                sx={{ 
+                                    minWidth: 220,
+                                    borderRadius: 3,
+                                    py: 1.5,
+                                    px: 4,
+                                    fontWeight: 'bold',
+                                    borderColor: '#FF1493',
+                                    color: '#FF1493',
+                                    borderWidth: 2,
+                                    textTransform: 'none',
+                                    '&:hover': {
+                                        borderColor: '#FF1493',
+                                        backgroundColor: 'rgba(255, 20, 147, 0.05)',
+                                        borderWidth: 2,
+                                    }
+                                }}
+                            >
+                                Book an NBT Test
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={handleSaveToProfile}
+                                sx={{ 
+                                    minWidth: 220,
+                                    borderRadius: 3,
+                                    py: 1.5,
+                                    px: 4,
+                                    fontWeight: 'bold',
+                                    background: 'linear-gradient(45deg, #FF1493 30%, #FF69B4 90%)',
+                                    textTransform: 'none',
+                                    boxShadow: '0 4px 15px rgba(255, 20, 147, 0.3)',
+                                    '&:hover': {
+                                        background: 'linear-gradient(45deg, #FF1493 20%, #FF69B4 80%)',
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: '0 6px 20px rgba(255, 20, 147, 0.4)',
+                                    },
+                                    transition: 'all 0.3s'
+                                }}
+                            >
+                                Save to Profile
+                            </Button>
+                        </Box>
+                    </Box>
+                </Paper>
+            </motion.div>
+
+            {/* Error Snackbar */}
+            <Snackbar
+                open={errorOpen}
+                autoHideDuration={6000}
+                onClose={() => setErrorOpen(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={() => setErrorOpen(false)} 
+                    severity={errorMessage.includes('success') ? 'success' : 'error'} 
+                    sx={{ width: '100%', borderRadius: 2 }}
+                    variant="filled"
                 >
-                    <option value="">Select {label}</option>
-                    {options.map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                    ))}
-                </select>
-            </div>
-            <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Mark %</label>
-                <input
-                    type="number"
-                    value={mark}
-                    onChange={(e) => onMarkChange(e.target.value)}
-                    min="0"
-                    max="100"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors"
-                    placeholder="0-100"
-                />
-            </div>
-        </div>
-    );
-};
-
-// NBT Input Component
-const NBTInput: React.FC<{
-    label: string;
-    abbr: string;
-    value: string;
-    onChange: (value: string) => void;
-}> = ({ label, abbr, value, onChange }) => {
-    return (
-        <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {label}
-                <span className="ml-2 text-pink-500 font-bold">({abbr})</span>
-            </label>
-            <input
-                type="number"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                min="0"
-                max="100"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-pink-500 focus:outline-none transition-colors"
-                placeholder="Score"
-            />
-        </div>
+                    {errorMessage}
+                </Alert>
+            </Snackbar>
+        </Container>
     );
 };
 

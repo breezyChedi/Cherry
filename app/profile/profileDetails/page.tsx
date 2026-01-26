@@ -1,28 +1,42 @@
+//app/profile/profileDetails/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
-import Flag from 'react-world-flags';
 import { auth, db } from '../../firebaseConfig';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { 
-  LogOut, 
-  User as UserIcon, 
-  Mail, 
-  Phone, 
-  School, 
-  MapPin, 
-  Calendar,
-  Award,
-  TrendingUp,
-  BookOpen,
-  Loader
-} from 'lucide-react';
+  Box, 
+  Typography, 
+  Button, 
+  Avatar, 
+  Alert, 
+  Grid, 
+  CircularProgress, 
+  Container,
+  Paper,
+  Divider,
+  Card,
+  CardContent,
+  IconButton,
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+  Chip
+} from '@mui/material';
+import Flag from 'react-world-flags';
+import LogoutIcon from '@mui/icons-material/Logout';
+import SchoolIcon from '@mui/icons-material/School';
+import EmailIcon from '@mui/icons-material/Email';
+import ScoreboardIcon from '@mui/icons-material/Scoreboard';
+import FlagIcon from '@mui/icons-material/Flag';
+import PhoneIcon from '@mui/icons-material/Phone';
+import WcIcon from '@mui/icons-material/Wc';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import firebase from 'firebase/compat/app';
 
+// Define the profile structure for type safety
 interface Profile {
   apsScore?: number;
   marks?: { [key: string]: string };
@@ -44,6 +58,7 @@ interface UserProfile {
 
 const ProfileDetailsPage: React.FC = () => {
   const router = useRouter();
+  const theme = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -56,23 +71,29 @@ const ProfileDetailsPage: React.FC = () => {
         setUser(currentUser);
 
         try {
+          // Fetch user data from 'users' collection
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             setUserProfile(userDoc.data() as UserProfile);
+          } else {
+            setUserProfile(null);
           }
 
+          // Fetch profile data from 'profiles' collection
           const profileDocRef = doc(db, 'profiles', currentUser.uid);
           const profileDoc = await getDoc(profileDocRef);
           if (profileDoc.exists()) {
             setProfile(profileDoc.data() as Profile);
+          } else {
+            setProfile(null);
           }
         } catch (err: any) {
           console.error('Error fetching user data:', err);
           setError('Failed to load profile data.');
         }
       } else {
-        router.push('/profile');
+        router.push('/profile'); // Redirect to sign-in if not authenticated
       }
       setLoading(false);
     });
@@ -83,7 +104,7 @@ const ProfileDetailsPage: React.FC = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push('/profile');
+      router.push('/profile'); // Redirect to sign-in page
     } catch (err: any) {
       console.error('Error signing out:', err);
       setError('Failed to sign out.');
@@ -92,48 +113,42 @@ const ProfileDetailsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #fddeff 0%, #ffe4f5 100%)' }}>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          <Loader className="w-16 h-16 text-pink-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600 font-semibold">Loading your profile...</p>
-        </motion.div>
-      </div>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress size={60} thickness={4} />
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #fddeff 0%, #ffe4f5 100%)' }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 border-2 border-red-500 rounded-2xl p-6 max-w-md"
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Alert 
+          severity="error" 
+          variant="filled"
+          action={
+            <Button color="inherit" size="small" onClick={() => router.refresh()}>
+              Retry
+            </Button>
+          }
+          sx={{ mb: 2 }}
         >
-          <p className="text-red-700 font-semibold mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full bg-red-500 text-white font-semibold py-2 rounded-xl hover:bg-red-600 transition-colors"
-          >
-            Retry
-          </button>
-        </motion.div>
-      </div>
+          {error}
+        </Alert>
+      </Container>
     );
   }
 
   const getSortedSubjects = () => {
     if (!profile?.subjects) return [];
-    
+
+    // Extract subject keys and sort them numerically
     const sortedKeys = Object.keys(profile.subjects).sort((a, b) => {
       const aNum = parseInt(a.replace('subject', ''), 10);
       const bNum = parseInt(b.replace('subject', ''), 10);
       return aNum - bNum;
     });
 
+    // Map sorted keys to subject and corresponding mark
     return sortedKeys.map((key) => {
       const subjectNumber = key.replace('subject', '');
       const subject = profile.subjects![key];
@@ -144,15 +159,17 @@ const ProfileDetailsPage: React.FC = () => {
 
   const sortedSubjects = getSortedSubjects();
   
+  // Grade point colors based on mark ranges
   const getMarkColor = (mark: number) => {
-    if (mark >= 80) return 'from-green-500 to-green-600';
-    if (mark >= 70) return 'from-green-400 to-green-500';
-    if (mark >= 60) return 'from-blue-400 to-blue-500';
-    if (mark >= 50) return 'from-yellow-400 to-yellow-500';
-    if (mark >= 40) return 'from-orange-400 to-orange-500';
-    return 'from-red-400 to-red-500';
+    if (mark >= 80) return '#4caf50'; // A - Green
+    if (mark >= 70) return '#8bc34a'; // B - Light Green
+    if (mark >= 60) return '#cddc39'; // C - Lime
+    if (mark >= 50) return '#ffc107'; // D - Amber
+    if (mark >= 40) return '#ff9800'; // E - Orange
+    return '#f44336'; // F - Red
   };
 
+  // Get letter grade
   const getGrade = (mark: number) => {
     if (mark >= 80) return 'A';
     if (mark >= 70) return 'B';
@@ -162,6 +179,13 @@ const ProfileDetailsPage: React.FC = () => {
     return 'F';
   };
 
+  // Get progress value for NBT scores (assuming NBT scores are out of 100)
+  const getNBTProgress = (score: string) => {
+    const value = parseInt(score);
+    return isNaN(value) ? 0 : value;
+  };
+
+  // Format date
   const formatDate = (timestamp?: firebase.firestore.Timestamp) => {
     if (!timestamp) return 'N/A';
     return new Date(timestamp.seconds * 1000).toLocaleDateString('en-US', {
@@ -171,295 +195,504 @@ const ProfileDetailsPage: React.FC = () => {
     });
   };
 
-  const getCountryCode = (nationality: string): string => {
-    const countryMap: { [key: string]: string } = {
-      'South Africa': 'ZA',
-      'United States': 'US',
-      'United Kingdom': 'GB',
-      'Canada': 'CA',
-      'Australia': 'AU',
-      'India': 'IN',
-      'China': 'CN',
-      'Japan': 'JP',
-    };
-    return countryMap[nationality] || 'ZA';
-  };
-
-  const formatNBTKey = (key: string): string => {
-    switch (key) {
-      case 'nbtAL': return 'Academic Literacy';
-      case 'nbtMAT': return 'Mathematics';
-      case 'nbtQL': return 'Quantitative Literacy';
-      default: return key;
-    }
-  };
-
   return (
-    <div className="min-h-screen py-8 px-4" style={{ background: 'linear-gradient(135deg, #fddeff 0%, #ffe4f5 100%)' }}>
-      <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Profile Sidebar */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-1"
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Grid container spacing={4}>
+        {/* Profile Sidebar */}
+        <Grid item xs={12} md={4}>
+          <Paper 
+            elevation={3} 
+            sx={{ 
+              p: 3, 
+              borderRadius: 2,
+              height: '100%',
+              position: 'relative',
+              background: 'linear-gradient(to bottom, #f5f7fa 0%, #c3cfe2 100%)'
+            }}
           >
-            <div className="bg-white rounded-3xl shadow-2xl p-8 sticky top-8">
-              {/* Sign Out Button */}
-              <button
-                onClick={handleSignOut}
-                className="absolute top-4 right-4 p-2 rounded-full bg-red-50 hover:bg-red-100 transition-colors group"
-              >
-                <LogOut className="text-red-500 group-hover:text-red-600" size={20} />
-              </button>
-
-              {/* Avatar */}
-              <div className="flex flex-col items-center mb-6">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 200 }}
-                  className={`w-32 h-32 rounded-full flex items-center justify-center text-white text-5xl font-bold mb-4 shadow-lg ${
-                    userProfile?.gender === 'Male' ? 'bg-gradient-to-br from-blue-500 to-blue-600' :
-                    userProfile?.gender === 'Female' ? 'bg-gradient-to-br from-pink-500 to-pink-600' :
-                    'bg-gradient-to-br from-gray-500 to-gray-600'
-                  }`}
+            <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
+              <Tooltip title="Sign Out">
+                <IconButton 
+                  onClick={handleSignOut}
+                  sx={{ 
+                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                    '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.9)' }
+                  }}
                 >
-                  {userProfile?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0)?.toUpperCase()}
-                </motion.div>
-                
-                <h2 className="text-2xl font-black text-gray-800 text-center">
-                  {userProfile ? `${userProfile.name} ${userProfile.surname}` : user?.email?.split('@')[0]}
-                </h2>
-                
-                <div className="flex items-center gap-2 mt-2 text-gray-600">
-                  <Mail size={16} />
-                  <span className="text-sm">{user?.email}</span>
-                </div>
-              </div>
-
-              <div className="h-px bg-gray-200 my-6"></div>
-
-              {/* User Details */}
-              <div className="space-y-4">
-                {userProfile?.phoneNumber && (
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Phone size={20} className="text-pink-500" />
-                    <span>{userProfile.phoneNumber}</span>
-                  </div>
-                )}
-                
-                {userProfile?.highSchool && (
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <School size={20} className="text-pink-500" />
-                    <span>{userProfile.highSchool}</span>
-                  </div>
-                )}
-                
-                {userProfile?.nationality && (
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <MapPin size={20} className="text-pink-500" />
-                    <div className="flex items-center gap-2">
-                      <Flag code={getCountryCode(userProfile.nationality)} style={{ width: 24 }} />
-                      <span>{userProfile.nationality}</span>
-                    </div>
-                  </div>
-                )}
-                
-                {userProfile?.createdAt && (
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Calendar size={20} className="text-pink-500" />
-                    <span>Joined {formatDate(userProfile.createdAt)}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="h-px bg-gray-200 my-6"></div>
-
-              {/* APS Score */}
-              <div className="text-center">
-                <h3 className="text-lg font-bold text-gray-700 mb-4">Your APS Score</h3>
-                <div className="relative w-36 h-36 mx-auto">
-                  <svg className="transform -rotate-90 w-36 h-36">
-                    <circle
-                      cx="72"
-                      cy="72"
-                      r="64"
-                      stroke="#f0f0f0"
-                      strokeWidth="10"
-                      fill="none"
+                  <LogoutIcon color="error" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+              <Avatar 
+                sx={{
+                  bgcolor: userProfile?.gender === 'Male' ? '#5334cb' : userProfile?.gender === 'Female' ? '#e718a7' : '#808080',
+                  width: 120, 
+                  height: 120,
+                  fontSize: 48,
+                  mb: 2,
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+                }}
+              >
+                {userProfile?.name
+                  ? userProfile.name.charAt(0).toUpperCase()
+                  : user?.email?.charAt(0)?.toUpperCase()}
+              </Avatar>
+              
+              <Typography variant="h5" fontWeight="bold" align="center">
+                {userProfile
+                  ? `${userProfile.name} ${userProfile.surname}`
+                  : user?.email?.split('@')[0]}
+              </Typography>
+              
+              <Chip 
+                icon={<EmailIcon />} 
+                label={user?.email} 
+                size="small" 
+                sx={{ mt: 1 }} 
+              />
+            </Box>
+            
+            <Divider sx={{ my: 2 }} />
+            
+            {/* User Details */}
+            <Box sx={{ mt: 2 }}>
+              {userProfile?.gender && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <WcIcon sx={{ mr: 2, color: 'primary.main' }} />
+                  <Typography>
+                    {userProfile.gender}
+                  </Typography>
+                </Box>
+              )}
+              
+              {userProfile?.phoneNumber && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <PhoneIcon sx={{ mr: 2, color: 'primary.main' }} />
+                  <Typography>
+                    {userProfile.phoneNumber}
+                  </Typography>
+                </Box>
+              )}
+              
+              {userProfile?.highSchool && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <SchoolIcon sx={{ mr: 2, color: 'primary.main' }} />
+                  <Typography>
+                    {userProfile.highSchool}
+                  </Typography>
+                </Box>
+              )}
+              
+              {userProfile?.nationality && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <FlagIcon sx={{ mr: 2, color: 'primary.main' }} />
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Flag
+                      code={getCountryCode(userProfile.nationality)}
+                      style={{ width: 24, marginRight: 8 }}
                     />
-                    <motion.circle
-                      cx="72"
-                      cy="72"
-                      r="64"
-                      stroke="url(#apsGradient)"
-                      strokeWidth="10"
-                      fill="none"
-                      strokeLinecap="round"
-                      initial={{ strokeDasharray: "0 402" }}
-                      animate={{ strokeDasharray: `${((profile?.apsScore || 0) / 42) * 402} 402` }}
-                      transition={{ duration: 1.5, ease: "easeOut" }}
-                    />
-                    <defs>
-                      <linearGradient id="apsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#FF1493" />
-                        <stop offset="100%" stopColor="#FF69B4" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl font-black text-pink-600">{profile?.apsScore || 0}</span>
-                    <span className="text-xs text-gray-500">out of 42</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Academic Performance */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-3xl shadow-2xl p-8"
+                    <Typography>
+                      {userProfile.nationality}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+              
+              {userProfile?.createdAt && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <CalendarTodayIcon sx={{ mr: 2, color: 'primary.main' }} />
+                  <Typography>
+                    Joined {formatDate(userProfile.createdAt)}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+            
+            <Divider sx={{ my: 2 }} />
+            
+            {/* APS Score */}
+            <Box 
+              sx={{ 
+                mt: 3, 
+                display: 'flex', 
+                flexDirection: 'column',
+                alignItems: 'center',
+                bgcolor: 'background.paper',
+                borderRadius: 2,
+                p: 2,
+                boxShadow: '0 2px 10px rgba(0,0,0,0.08)'
+              }}
             >
-              <h2 className="text-3xl font-black text-gray-800 mb-6 flex items-center gap-3">
-                <Award className="text-pink-500" size={32} />
-                Academic Performance
-              </h2>
-
-              {sortedSubjects.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-4">
-                  {sortedSubjects.map(({ subject, mark }, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.3 + idx * 0.05 }}
-                      className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border-2 border-gray-100 hover:border-pink-300 transition-all"
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                APS Score
+              </Typography>
+              
+              <Box 
+                sx={{ 
+                  position: 'relative',
+                  display: 'inline-flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+              >
+                <CircularProgress
+                  variant="determinate"
+                  value={(profile?.apsScore || 0) / 42 * 100}
+                  size={120}
+                  thickness={8}
+                  sx={{
+                    color: (profile?.apsScore || 0) >= 30 
+                      ? '#4caf50' 
+                      : (profile?.apsScore || 0) >= 20 
+                        ? '#ffc107' 
+                        : '#f44336',
+                    borderRadius: '50%',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                  }}
+                />
+                <Box
+                  sx={{
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    position: 'absolute',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    component="div"
+                    color="text.primary"
+                    fontWeight="bold"
+                  >
+                    {profile?.apsScore || 0}
+                  </Typography>
+                </Box>
+              </Box>
+              
+              <Typography 
+                variant="body2" 
+                color="text.secondary" 
+                sx={{ mt: 1 }}
+              >
+                Out of 42 possible points
+              </Typography>
+            </Box>
+          </Paper>
+        </Grid>
+        
+        {/* Main Content */}
+        <Grid item xs={12} md={8}>
+          {/* Subjects Section */}
+          <Paper 
+            elevation={3} 
+            sx={{ 
+              p: 3, 
+              borderRadius: 2,
+              mb: 4,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+            }}
+          >
+            <Typography 
+              variant="h5" 
+              fontWeight="bold" 
+              sx={{ 
+                mb: 3,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <ScoreboardIcon sx={{ mr: 1, color: 'primary.main' }} />
+              Academic Performance
+            </Typography>
+            
+            <Divider sx={{ mb: 3 }} />
+            
+            {sortedSubjects.length > 0 ? (
+              <Grid container spacing={2}>
+                {sortedSubjects.map(({ subject, mark }, index) => (
+                  <Grid item xs={12} sm={6} key={`subject-${index}`}>
+                    <Card 
+                      variant="outlined"
+                      sx={{ 
+                        borderColor: getMarkColor(mark),
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                          transform: 'translateY(-3px)',
+                          boxShadow: 2
+                        }
+                      }}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-gray-800 flex-1">{subject}</h3>
-                        <div className="text-right">
-                          <div className={`inline-block bg-gradient-to-r ${getMarkColor(mark)} text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg`}>
-                            {getGrade(mark)}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${mark}%` }}
-                            transition={{ duration: 1, delay: 0.5 + idx * 0.05 }}
-                            className={`h-full bg-gradient-to-r ${getMarkColor(mark)}`}
+                      <CardContent>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant="h6" component="div">
+                            {subject}
+                          </Typography>
+                          <Box 
+                            sx={{ 
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center'
+                            }}
+                          >
+                            <Typography 
+                              variant="h5" 
+                              fontWeight="bold" 
+                              sx={{ color: getMarkColor(mark) }}
+                            >
+                              {getGrade(mark)}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {mark}%
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                        <Box 
+                          sx={{ 
+                            mt: 1, 
+                            width: '100%', 
+                            height: 8, 
+                            bgcolor: 'background.paper',
+                            borderRadius: 5,
+                            overflow: 'hidden'
+                          }}
+                        >
+                          <Box 
+                            sx={{ 
+                              width: `${mark}%`, 
+                              height: '100%', 
+                              bgcolor: getMarkColor(mark)
+                            }}
                           />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-600">{mark}%</span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-gray-50 rounded-2xl">
-                  <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-4">No subjects available</p>
-                  <button
-                    onClick={() => router.push('/calculator')}
-                    className="bg-gradient-to-r from-[#FF1493] to-[#FF69B4] text-white font-semibold px-6 py-3 rounded-xl hover:shadow-lg transition-all"
-                  >
-                    Add Your Subjects
-                  </button>
-                </div>
-              )}
-            </motion.div>
-
-            {/* NBT Scores */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="bg-white rounded-3xl shadow-2xl p-8"
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Box 
+                sx={{ 
+                  textAlign: 'center', 
+                  py: 4, 
+                  bgcolor: 'background.paper',
+                  borderRadius: 2
+                }}
+              >
+                <Typography color="text.secondary">
+                  No subjects available. Add your subjects in the APS Calculator.
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  color="primary" 
+                  sx={{ mt: 2 }}
+                  onClick={() => router.push('/calculator')}
+                >
+                  Go to APS Calculator
+                </Button>
+              </Box>
+            )}
+          </Paper>
+          
+          {/* NBT Scores Section */}
+          <Paper 
+            elevation={3} 
+            sx={{ 
+              p: 3, 
+              borderRadius: 2,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+            }}
+          >
+            <Typography 
+              variant="h5" 
+              fontWeight="bold" 
+              sx={{ 
+                mb: 3,
+                display: 'flex',
+                alignItems: 'center'
+              }}
             >
-              <h2 className="text-3xl font-black text-gray-800 mb-6 flex items-center gap-3">
-                <TrendingUp className="text-pink-500" size={32} />
-                NBT Scores
-              </h2>
-
-              {profile?.nbtScores && Object.keys(profile.nbtScores).length > 0 ? (
-                <div className="grid md:grid-cols-3 gap-6">
-                  {Object.entries(profile.nbtScores).map(([key, score], idx) => {
-                    const value = parseInt(score);
-                    const progress = isNaN(value) ? 0 : value;
-                    
-                    return (
-                      <motion.div
-                        key={key}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.5 + idx * 0.1 }}
-                        className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 text-center border-2 border-gray-100 hover:border-pink-300 transition-all"
+              <ScoreboardIcon sx={{ mr: 1, color: 'secondary.main' }} />
+              National Benchmark Test (NBT) Scores
+            </Typography>
+            
+            <Divider sx={{ mb: 3 }} />
+            
+            {profile?.nbtScores && Object.keys(profile.nbtScores).length > 0 ? (
+              <Grid container spacing={3}>
+                {Object.keys(profile.nbtScores).map((key, index) => {
+                  const score = profile.nbtScores![key];
+                  const progress = getNBTProgress(score);
+                  
+                  return (
+                    <Grid item xs={12} sm={4} key={`nbt-${index}`}>
+                      <Card 
+                        sx={{ 
+                          height: '100%',
+                          textAlign: 'center',
+                          p: 2,
+                          boxShadow: 2,
+                          transition: 'transform 0.2s',
+                          '&:hover': {
+                            transform: 'translateY(-3px)',
+                            boxShadow: 4
+                          }
+                        }}
                       >
-                        <h3 className="font-bold text-gray-800 mb-4">{formatNBTKey(key)}</h3>
-                        <div className="relative w-24 h-24 mx-auto mb-3">
-                          <svg className="transform -rotate-90 w-24 h-24">
-                            <circle
-                              cx="48"
-                              cy="48"
-                              r="40"
-                              stroke="#f0f0f0"
-                              strokeWidth="8"
-                              fill="none"
-                            />
-                            <motion.circle
-                              cx="48"
-                              cy="48"
-                              r="40"
-                              stroke={progress >= 70 ? '#10b981' : progress >= 50 ? '#f59e0b' : '#ef4444'}
-                              strokeWidth="8"
-                              fill="none"
-                              strokeLinecap="round"
-                              initial={{ strokeDasharray: "0 251" }}
-                              animate={{ strokeDasharray: `${(progress / 100) * 251} 251` }}
-                              transition={{ duration: 1, delay: 0.6 + idx * 0.1 }}
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-2xl font-black text-gray-800">{score}</span>
-                          </div>
-                        </div>
-                        <p className="text-xs text-gray-500">Out of 100</p>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-gray-50 rounded-2xl">
-                  <TrendingUp className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-4">No NBT scores available</p>
-                  <button
-                    onClick={() => window.open('https://nbtests.uct.ac.za/', '_blank')}
-                    className="bg-gradient-to-r from-[#FF1493] to-[#FF69B4] text-white font-semibold px-6 py-3 rounded-xl hover:shadow-lg transition-all"
-                  >
-                    Book an NBT Test
-                  </button>
-                </div>
-              )}
-
-              {profile?.savedAt && (
-                <p className="text-sm text-gray-500 text-right mt-6">
-                  Last updated: {formatDate(profile.savedAt)}
-                </p>
-              )}
-            </motion.div>
-          </div>
-        </div>
-      </div>
-    </div>
+                        <Typography 
+                          variant="h6" 
+                          color="primary" 
+                          fontWeight="medium"
+                          gutterBottom
+                        >
+                          {formatNBTKey(key)}
+                        </Typography>
+                        
+                        <Box 
+                          sx={{ 
+                            position: 'relative',
+                            display: 'inline-flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            my: 2
+                          }}
+                        >
+                          <CircularProgress
+                            variant="determinate"
+                            value={progress}
+                            size={80}
+                            thickness={8}
+                            sx={{
+                              color: progress >= 70 
+                                ? '#4caf50' 
+                                : progress >= 50 
+                                  ? '#ffc107' 
+                                  : '#f44336'
+                            }}
+                          />
+                          <Box
+                            sx={{
+                              top: 0,
+                              left: 0,
+                              bottom: 0,
+                              right: 0,
+                              position: 'absolute',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Typography
+                              variant="h6"
+                              component="div"
+                              color="text.primary"
+                              fontWeight="bold"
+                            >
+                              {score}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ maxWidth: 200, mx: 'auto' }}
+                        >
+                          {getNBTDescription(key)}
+                        </Typography>
+                      </Card>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            ) : (
+              <Box 
+                sx={{ 
+                  textAlign: 'center', 
+                  py: 4, 
+                  bgcolor: 'background.paper',
+                  borderRadius: 2
+                }}
+              >
+                <Typography color="text.secondary">
+                  No NBT scores available. Enter your scores in the APS Calculator.
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  color="secondary" 
+                  sx={{ mt: 2 }}
+                  onClick={() => window.open('https://nbtests.uct.ac.za/', '_blank')}
+                >
+                  Book an NBT Test
+                </Button>
+              </Box>
+            )}
+            
+            {profile?.savedAt && (
+              <Typography 
+                variant="caption" 
+                color="text.secondary" 
+                sx={{ display: 'block', textAlign: 'right', mt: 2 }}
+              >
+                Last updated: {formatDate(profile.savedAt)}
+              </Typography>
+            )}
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
   );
+};
+
+// Helper function to get country code based on nationality
+const getCountryCode = (nationality: string): string => {
+  const countryMap: { [key: string]: string } = {
+    'South Africa': 'ZA',
+    'United States': 'US',
+    'United Kingdom': 'GB',
+    'Canada': 'CA',
+    'Australia': 'AU',
+    'India': 'IN',
+    'China': 'CN',
+    'Japan': 'JP',
+    // Add more mappings as needed
+  };
+
+  return countryMap[nationality] || 'ZA'; // Default to 'ZA' if not found
+};
+
+// Helper function to format NBT keys
+const formatNBTKey = (key: string): string => {
+  switch (key) {
+    case 'nbtAL':
+      return 'Academic Literacy';
+    case 'nbtMAT':
+      return 'Mathematics';
+    case 'nbtQL':
+      return 'Quantitative Literacy';
+    default:
+      return key;
+  }
+};
+
+// Helper function to get NBT description
+const getNBTDescription = (key: string): string => {
+  switch (key) {
+    case 'nbtAL':
+      return 'Tests your capacity to engage with academic study in English';
+    case 'nbtMAT':
+      return 'Tests mathematical concepts from secondary school curriculum';
+    case 'nbtQL':
+      return 'Tests ability to manage quantitative problem-solving in academic contexts';
+    default:
+      return '';
+  }
 };
 
 export default ProfileDetailsPage;
