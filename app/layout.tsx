@@ -1,5 +1,6 @@
 'use client';
 
+import './globals.css';
 import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -92,6 +93,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <html lang="en">
         <head>
           <title>Cherry</title>
+          <link rel="icon" href="/favicon.ico" />
           <meta name="google-site-verification" content="bLl3duV6gX_tPcCXtnjOB9X-hyCMm4DG3MqeTEPjRZ0" />
         </head>
         <body style={{ margin: 0, padding: 0 }}>
@@ -203,6 +205,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <html lang="en">
       <head>
         <title>Cherry</title>
+        <link rel="icon" href="/favicon.ico" />
         <meta name="google-site-verification" content="bLl3duV6gX_tPcCXtnjOB9X-hyCMm4DG3MqeTEPjRZ0" />
       </head>
       <body>

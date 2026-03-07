@@ -61,7 +61,7 @@ export default function HomePage() {
       case 'huawei':
         return 'https://appgallery.huawei.com/app/C113682051';
       default:
-        return '/profile';
+        return 'https://linktr.ee/Cherryza';
     }
   };
 
@@ -99,11 +99,11 @@ export default function HomePage() {
           </div>
 
           <a
-            href={device === 'desktop' ? '/profile' : getAppStoreUrl()}
+            href={device === 'desktop' ? 'https://linktr.ee/Cherryza' : getAppStoreUrl()}
             onClick={handleMainButtonClick}
             className="bg-[#FF1493] text-white font-bold px-8 py-3 rounded-full hover:bg-pink-600 transition-all transform hover:scale-105 shadow-lg"
           >
-            {device === 'desktop' ? 'Use Web App' : 'Download App'}
+            {device === 'desktop' ? 'Linktree' : 'Download App'}
           </a>
         </div>
       </nav>
