@@ -1,4 +1,11 @@
 // CANVA EDGE PROXY - commented out
+// Canva proxy is no longer used. /home now redirects to the local home page.
+export async function GET() {
+  return Response.redirect('/', 301);
+}
+
+// Original proxy code below - kept for reference:
+// CANVA EDGE PROXY
 // This proxy was used to serve the Canva-hosted home page at /home.
 // home1/page.tsx now serves as the root route instead.
 // Kept here for reference. To re-enable: uncomment and restore rewrites in next.config.ts and vercel.json.
