@@ -86,8 +86,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     setValue(pathname);
   }, [pathname]);
 
-  // If we are on the home1 page, render a clean layout without the app shell
-  if (pathname?.startsWith('/home1')) {
+  // If we are on the home page (or /home1 fallback), render a clean layout without the app shell
+  if (pathname === '/' || pathname?.startsWith('/home1')) {
     return (
       <html lang="en">
         <head>
@@ -122,7 +122,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   };
 
   const handleCherryClick = () => {
-    window.open('https://cherry.org.za/home', '_blank');
+    // Previously opened the Canva-hosted home at 'https://cherry.org.za/home'
+    // Now navigates to the local home page
+    router.push('/');
   };
 
   const toggleSidebar = () => {

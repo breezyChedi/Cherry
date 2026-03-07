@@ -1,12 +1,3 @@
 {
-  "rewrites": [
-    {
-      "source": "/home(.*)",
-      "destination": "/api/edge-proxy$1"
-    },
-    {
-      "source": "/_assets/(.*)",
-      "destination": "https://home.cherry.org.za/_assets/$1"
-    }
-  ]
+  "rewrites": []
 }

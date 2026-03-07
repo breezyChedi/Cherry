@@ -36,22 +36,23 @@ export default nextConfig;
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return {
-      beforeFiles: [
-        {
-          source: '/home/:path*',
-          destination: '/api/edge-proxy/:path*',
-        },
-        {
-          source: '/home',
-          destination: '/api/edge-proxy',
-        }
-      ],
-      afterFiles: [], // Required empty array
-      fallback: []    // Required empty array
-    }
-  },
+  // CANVA PROXY REWRITES - commented out, home1 now serves as root route
+  // async rewrites() {
+  //   return {
+  //     beforeFiles: [
+  //       {
+  //         source: '/home/:path*',
+  //         destination: '/api/edge-proxy/:path*',
+  //       },
+  //       {
+  //         source: '/home',
+  //         destination: '/api/edge-proxy',
+  //       }
+  //     ],
+  //     afterFiles: [], // Required empty array
+  //     fallback: []    // Required empty array
+  //   }
+  // },
   turbopack: {
     rules: {
       '*.svg': {

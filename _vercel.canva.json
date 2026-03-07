@@ -1,0 +1,13 @@
+{
+  "_comment": "CANVA PROXY REWRITES BACKUP - these were the vercel.json rewrites when the home page was proxied from Canva. Kept here for reference.",
+  "rewrites": [
+    {
+      "source": "/home(.*)",
+      "destination": "/api/edge-proxy$1"
+    },
+    {
+      "source": "/_assets/(.*)",
+      "destination": "https://home.cherry.org.za/_assets/$1"
+    }
+  ]
+}
