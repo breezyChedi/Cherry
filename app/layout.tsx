@@ -92,8 +92,28 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     return (
       <html lang="en">
         <head>
-          <title>Cherry</title>
+          <title>Cherry | APS Calculator & South African University Course Finder</title>
           <link rel="icon" href="/favicon.ico" />
+          <meta name="description" content="Calculate your APS score in seconds, explore university degrees across South Africa, discover bursaries, understand NBT requirements, and find courses you qualify for — all in one app." />
+          <meta name="keywords" content="APS calculator, APS score, South African universities, university courses South Africa, matric APS, NBT test, bursaries South Africa, what courses can I study, admission point score, NSC, National Senior Certificate" />
+          <link rel="canonical" href="https://www.cherry.org.za/" />
+
+          {/* Open Graph - controls how link looks on WhatsApp, LinkedIn, Facebook */}
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content="https://www.cherry.org.za/" />
+          <meta property="og:site_name" content="Cherry" />
+          <meta property="og:title" content="Cherry | APS Calculator & South African University Course Finder" />
+          <meta property="og:description" content="Calculate your APS score in seconds, explore university degrees across South Africa, discover bursaries, understand NBT requirements, and find courses you qualify for — all in one app." />
+          <meta property="og:image" content="https://www.cherry.org.za/cherry_square_logo.png" />
+          <meta property="og:locale" content="en_ZA" />
+
+          {/* Twitter / X Card */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:site" content="@itscherryza" />
+          <meta name="twitter:title" content="Cherry | APS Calculator & South African University Course Finder" />
+          <meta name="twitter:description" content="Calculate your APS score in seconds, explore university degrees across South Africa, discover bursaries, understand NBT requirements, and find courses you qualify for — all in one app." />
+          <meta name="twitter:image" content="https://www.cherry.org.za/cherry_square_logo.png" />
+
           <meta name="google-site-verification" content="bLl3duV6gX_tPcCXtnjOB9X-hyCMm4DG3MqeTEPjRZ0" />
         </head>
         <body style={{ margin: 0, padding: 0 }}>
