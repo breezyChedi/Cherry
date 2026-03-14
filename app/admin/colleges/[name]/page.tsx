@@ -137,7 +137,7 @@ const monthOpts = [
 
 type AnyObj = Record<string, unknown>;
 type Qual = AnyObj;
-type Dept = { name: string; qualifications: Qual[] };
+type Dept = { name: string; nodeId?: number; qualifications: Qual[] };
 type Reg = { body: string; registrationNumber: string; type: string };
 type Campus = { name: string; city: string; province: string };
 
@@ -395,9 +395,10 @@ export default function CollegeEditPage({ params }: { params: Promise<{ name: st
         setData(inst);
         setNodeId(String(result.nodeId || ''));
         // Parse JSON fields in qualifications
-        const depts = (result.departments || []).map((d: Dept) => ({
+        const depts = (result.departments || []).map((d: Dept & { nodeId?: number }) => ({
           name: d.name,
-          qualifications: d.qualifications.map((q: AnyObj) => {
+          nodeId: d.nodeId,
+          qualifications: (d.qualifications || []).map((q: AnyObj) => {
             const parsed = { ...q };
             if (typeof q.durationJson === 'string') { try { parsed.duration = JSON.parse(q.durationJson as string); } catch { /* skip */ } }
             if (typeof q.admissionJson === 'string') { try { parsed.admission = JSON.parse(q.admissionJson as string); } catch { /* skip */ } }
