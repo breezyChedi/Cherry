@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/app/lib/admin/auth';
-import { downloadFromGCS } from '@/app/lib/admin/gcs';
 
-const MANIFEST_PATH = 'campus_photos/campus_photos_index.json';
+const MANIFEST_URL = 'https://storage.googleapis.com/cherry-app-assets/campus_photos/campus_photos_index.json';
 
 export async function GET(req: NextRequest) {
   if (!(await isAuthenticated())) {
@@ -16,8 +15,12 @@ export async function GET(req: NextRequest) {
 
   try {
     console.log(`[API /campus-gallery] GET — looking up nodeId="${nodeId}"`);
-    const text = await downloadFromGCS(MANIFEST_PATH);
-    const manifest = JSON.parse(text);
+    const res = await fetch(`${MANIFEST_URL}?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) {
+      console.error(`[API /campus-gallery] Manifest fetch failed: ${res.status}`);
+      return NextResponse.json({ photos: [], error: `Manifest fetch failed: ${res.status}` });
+    }
+    const manifest = await res.json();
 
     const allKeys = Object.keys(manifest.institutions || {});
     console.log(`[API /campus-gallery] Manifest has ${allKeys.length} institution(s), keys sample: [${allKeys.slice(0, 5).join(', ')}]`);
