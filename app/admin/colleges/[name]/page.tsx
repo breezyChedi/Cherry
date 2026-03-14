@@ -417,18 +417,22 @@ export default function CollegeEditPage({ params }: { params: Promise<{ name: st
       .finally(() => setLoading(false));
   }, [name]);
 
-  // Fetch campus gallery from GCS manifest
+  // Fetch campus gallery from GCS manifest (try direct GCS, fallback to API proxy)
   useEffect(() => {
     if (!nodeId) return;
     setLoadingGallery(true);
-    fetch(`https://storage.googleapis.com/cherry-app-assets/campus_photos/campus_photos_index.json?t=${Date.now()}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(manifest => {
-        if (manifest?.institutions?.[nodeId]) {
-          setGalleryPhotos(manifest.institutions[nodeId].photos || []);
+    console.log(`[Gallery] Fetching manifest for nodeId="${nodeId}"`);
+    fetch(`/api/admin/campus-gallery?nodeId=${nodeId}`, { credentials: 'include' })
+      .then(r => r.json())
+      .then(result => {
+        console.log(`[Gallery] API response:`, result);
+        if (result.photos) {
+          setGalleryPhotos(result.photos);
+        } else {
+          console.log(`[Gallery] No photos found. Available institution keys:`, result.availableKeys?.slice(0, 10));
         }
       })
-      .catch(() => { /* manifest may not exist yet */ })
+      .catch(err => { console.error(`[Gallery] Fetch failed:`, err); })
       .finally(() => setLoadingGallery(false));
   }, [nodeId]);
 
