@@ -102,76 +102,130 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Handle departments and qualifications — always match by node ID if available
-    const departments = data.departments || [];
-    if (departments.length > 0) {
-      const matchClause = existingNodeId
-        ? `MATCH (u:University) WHERE id(u) = ${parseInt(existingNodeId)}`
-        : `MATCH (u:University { name: $uniName })`;
+    // Handle departments and qualifications — only if explicitly provided
+    const departments = data.departments;
+    if (Array.isArray(departments)) {
+      const uniNodeId = existingNodeId ? parseInt(existingNodeId) : null;
 
-      console.log(`[API /colleges] POST — clearing existing faculties/degrees for "${inst.name}"`);
-      await neo4jQuery(
-        `${matchClause}-[:HAS_FACULTY]->(f:Faculty)-[:HAS_DEGREE]->(d:Degree) DETACH DELETE d`,
-        existingNodeId ? {} : { uniName: inst.name }
-      );
-      await neo4jQuery(
-        `${matchClause}-[:HAS_FACULTY]->(f:Faculty) DETACH DELETE f`,
-        existingNodeId ? {} : { uniName: inst.name }
-      );
+      // Build degree SET clause (reused for both update and create)
+      const degreeSetClause = `SET d.id = $id, d.name = $qName, d.shortName = $shortName, d.code = $code,
+        d.description = $description, d.level = $level, d.qualificationType = $qualificationType,
+        d.nqfLevel = $nqfLevel, d.creditValue = $creditValue, d.outcomeType = $outcomeType,
+        d.awardTitle = $awardTitle, d.certifiedBy = $certifiedBy, d.isUnitStandardBased = $isUnitStandardBased,
+        d.durationJson = $durationJson, d.studyModes = $studyModes, d.campuses = $campuses,
+        d.admissionJson = $admissionJson, d.feesJson = $feesJson,
+        d.careerOpportunities = $careerOpportunities, d.skills = $skills, d.industries = $industries,
+        d.focalAreas = $focalAreas, d.schedulingJson = $schedulingJson, d.structureJson = $structureJson`;
 
-      console.log(`[API /colleges] POST — creating ${departments.length} department(s)`);
+      const qualParams = (qual: Record<string, unknown>) => ({
+        id: qual.id || '',
+        qName: qual.name || '',
+        shortName: qual.shortName || null,
+        code: qual.code || null,
+        description: qual.description || null,
+        level: qual.level || '',
+        qualificationType: qual.qualificationType || '',
+        nqfLevel: qual.nqfLevel ?? null,
+        creditValue: qual.creditValue ?? null,
+        outcomeType: qual.outcomeType || null,
+        awardTitle: qual.awardTitle || null,
+        certifiedBy: qual.certifiedBy || null,
+        isUnitStandardBased: qual.isUnitStandardBased ?? false,
+        durationJson: JSON.stringify(qual.duration || {}),
+        studyModes: qual.studyModes || [],
+        campuses: qual.campuses || [],
+        admissionJson: JSON.stringify(qual.admission || {}),
+        feesJson: JSON.stringify(qual.fees || []),
+        careerOpportunities: qual.careerOpportunities || [],
+        skills: qual.skills || [],
+        industries: qual.industries || [],
+        focalAreas: qual.focalAreas || [],
+        schedulingJson: JSON.stringify(qual.scheduling || {}),
+        structureJson: JSON.stringify(qual.structure || {}),
+      });
+
+      // Collect all incoming department/degree node IDs to know what to keep
+      const incomingFacultyIds = new Set<number>();
+      const incomingDegreeIds = new Set<number>();
       for (const dept of departments) {
-        await neo4jQuery(
-          `${matchClause} CREATE (u)-[:HAS_FACULTY]->(f:Faculty { name: $deptName }) RETURN f`,
-          { ...(existingNodeId ? {} : { uniName: inst.name }), deptName: dept.name }
-        );
+        if (dept.nodeId) incomingFacultyIds.add(Number(dept.nodeId));
+        for (const q of (dept.qualifications || [])) {
+          if (q._nodeId) incomingDegreeIds.add(Number(q._nodeId));
+        }
+      }
 
+      console.log(`[API /colleges] POST — processing ${departments.length} department(s)`);
+
+      for (const dept of departments) {
+        const deptNodeId = dept.nodeId ? Number(dept.nodeId) : null;
+
+        if (deptNodeId) {
+          // UPDATE existing faculty by node ID
+          await neo4jQuery(
+            `MATCH (f:Faculty) WHERE id(f) = $fId SET f.name = $deptName RETURN f`,
+            { fId: deptNodeId, deptName: dept.name }
+          );
+        } else if (uniNodeId) {
+          // CREATE new faculty on existing university
+          const createResult = await neo4jQuery(
+            `MATCH (u:University) WHERE id(u) = $uId CREATE (u)-[:HAS_FACULTY]->(f:Faculty { name: $deptName }) RETURN id(f) AS fId`,
+            { uId: uniNodeId, deptName: dept.name }
+          );
+          const rows = parseNeo4jResponse(createResult);
+          dept.nodeId = rows[0]?.fId;
+        } else {
+          // CREATE new faculty on new university (matched by name)
+          await neo4jQuery(
+            `MATCH (u:University { name: $uniName }) CREATE (u)-[:HAS_FACULTY]->(f:Faculty { name: $deptName }) RETURN f`,
+            { uniName: inst.name, deptName: dept.name }
+          );
+        }
+
+        const currentDeptNodeId = dept.nodeId ? Number(dept.nodeId) : deptNodeId;
         const quals = dept.qualifications || [];
         if (quals.length > 0) {
-          console.log(`[API /colleges] POST — creating ${quals.length} qualification(s) for dept="${dept.name}"`);
+          console.log(`[API /colleges] POST — processing ${quals.length} qualification(s) for dept="${dept.name}"`);
         }
+
         for (const qual of quals) {
-          await neo4jQuery(`
-            ${matchClause}-[:HAS_FACULTY]->(f:Faculty { name: $deptName })
-            CREATE (f)-[:HAS_DEGREE]->(d:Degree {
-              id: $id, name: $qName, shortName: $shortName, code: $code, description: $description,
-              level: $level, qualificationType: $qualificationType,
-              nqfLevel: $nqfLevel, creditValue: $creditValue, outcomeType: $outcomeType,
-              awardTitle: $awardTitle, certifiedBy: $certifiedBy, isUnitStandardBased: $isUnitStandardBased,
-              durationJson: $durationJson, studyModes: $studyModes,
-              campuses: $campuses, admissionJson: $admissionJson, feesJson: $feesJson,
-              careerOpportunities: $careerOpportunities, skills: $skills, industries: $industries,
-              focalAreas: $focalAreas, schedulingJson: $schedulingJson, structureJson: $structureJson
-            })
-            RETURN d
-          `, {
-            ...(existingNodeId ? {} : { uniName: inst.name }),
-            deptName: dept.name,
-            id: qual.id || '',
-            qName: qual.name || '',
-            shortName: qual.shortName || null,
-            code: qual.code || null,
-            description: qual.description || null,
-            level: qual.level || '',
-            qualificationType: qual.qualificationType || '',
-            nqfLevel: qual.nqfLevel ?? null,
-            creditValue: qual.creditValue ?? null,
-            outcomeType: qual.outcomeType || null,
-            awardTitle: qual.awardTitle || null,
-            certifiedBy: qual.certifiedBy || null,
-            isUnitStandardBased: qual.isUnitStandardBased ?? false,
-            durationJson: JSON.stringify(qual.duration || {}),
-            studyModes: qual.studyModes || [],
-            campuses: qual.campuses || [],
-            admissionJson: JSON.stringify(qual.admission || {}),
-            feesJson: JSON.stringify(qual.fees || []),
-            careerOpportunities: qual.careerOpportunities || [],
-            skills: qual.skills || [],
-            industries: qual.industries || [],
-            focalAreas: qual.focalAreas || [],
-            schedulingJson: JSON.stringify(qual.scheduling || {}),
-            structureJson: JSON.stringify(qual.structure || {}),
-          });
+          const degNodeId = qual._nodeId ? Number(qual._nodeId) : null;
+
+          if (degNodeId) {
+            // UPDATE existing degree by node ID
+            await neo4jQuery(
+              `MATCH (d:Degree) WHERE id(d) = $dId ${degreeSetClause} RETURN d`,
+              { dId: degNodeId, ...qualParams(qual) }
+            );
+          } else if (currentDeptNodeId) {
+            // CREATE new degree on existing faculty
+            await neo4jQuery(
+              `MATCH (f:Faculty) WHERE id(f) = $fId CREATE (f)-[:HAS_DEGREE]->(d:Degree) ${degreeSetClause} RETURN d`,
+              { fId: currentDeptNodeId, ...qualParams(qual) }
+            );
+          }
+        }
+      }
+
+      // Delete faculties/degrees that were removed in the UI
+      if (uniNodeId) {
+        // Delete degrees that are no longer in the payload
+        if (incomingDegreeIds.size > 0) {
+          await neo4jQuery(
+            `MATCH (u:University)-[:HAS_FACULTY]->(:Faculty)-[:HAS_DEGREE]->(d:Degree)
+             WHERE id(u) = $uId AND NOT id(d) IN $keepIds
+             DETACH DELETE d`,
+            { uId: uniNodeId, keepIds: Array.from(incomingDegreeIds) }
+          );
+        }
+        // Delete faculties that are no longer in the payload
+        if (incomingFacultyIds.size > 0) {
+          await neo4jQuery(
+            `MATCH (u:University)-[:HAS_FACULTY]->(f:Faculty)
+             WHERE id(u) = $uId AND NOT id(f) IN $keepIds
+             OPTIONAL MATCH (f)-[:HAS_DEGREE]->(d:Degree) DETACH DELETE d
+             WITH f DETACH DELETE f`,
+            { uId: uniNodeId, keepIds: Array.from(incomingFacultyIds) }
+          );
         }
       }
     }

@@ -24,17 +24,21 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ nam
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  // Get departments and qualifications
+  // Get departments and qualifications with node IDs
   const deptResult = await neo4jQuery(`
     MATCH (u:University { name: $name })-[:HAS_FACULTY]->(f:Faculty)
     OPTIONAL MATCH (f)-[:HAS_DEGREE]->(d:Degree)
-    RETURN f.name AS department, collect(properties(d)) AS qualifications
+    RETURN id(f) AS facultyNodeId, f.name AS department,
+           collect({ nodeId: id(d), props: properties(d) }) AS qualifications
     ORDER BY f.name
   `, { name: decodedName });
 
   const departments = parseNeo4jResponse(deptResult).map((row: Record<string, unknown>) => ({
+    nodeId: row.facultyNodeId,
     name: row.department,
-    qualifications: (row.qualifications as unknown[]) || [],
+    qualifications: ((row.qualifications as { nodeId: number; props: Record<string, unknown> }[]) || [])
+      .filter(q => q.props)
+      .map(q => ({ ...q.props, _nodeId: q.nodeId })),
   }));
 
   console.log(`[API /colleges/${decodedName}] GET OK — ${departments.length} department(s) in ${Date.now() - start}ms`);
