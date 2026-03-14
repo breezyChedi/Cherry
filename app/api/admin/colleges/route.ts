@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     const instParams = {
       name: inst.name,
       shortName: inst.shortName || null,
-      isCollege: inst.isCollege !== false,
+      isCollege: inst.isCollege === true ? true : null,
       location: inst.location || 'South Africa',
       logoUrl: inst.logoUrl || null,
       campusImageUrl: inst.campusImageUrl || null,

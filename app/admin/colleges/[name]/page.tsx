@@ -450,7 +450,7 @@ export default function CollegeEditPage({ params }: { params: Promise<{ name: st
     setSaving(true);
     setMessage('');
     try {
-      const payload = { institution: { ...data, isCollege: data.isCollege !== false }, departments, nodeId };
+      const payload = { institution: { ...data }, departments, nodeId };
       const res = await fetch('/api/admin/colleges', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload), credentials: 'include',
