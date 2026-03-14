@@ -10,6 +10,9 @@ function getOpenAI(): OpenAI {
 
 export async function callLLM(systemMessage: string, userMessage: string): Promise<string> {
   const MODEL = process.env.OPENAI_MODEL || 'gpt-4o';
+  console.log(`[LLM] Calling ${MODEL} — system: ${systemMessage.length} chars, user: ${userMessage.length} chars`);
+  const start = Date.now();
+
   const response = await getOpenAI().chat.completions.create({
     model: MODEL,
     max_completion_tokens: 16384,
@@ -22,22 +25,35 @@ export async function callLLM(systemMessage: string, userMessage: string): Promi
     ],
   });
 
-  return response.choices[0]?.message?.content || '';
+  const elapsed = Date.now() - start;
+  const content = response.choices[0]?.message?.content || '';
+  const usage = response.usage;
+  console.log(`[LLM] Response in ${elapsed}ms — ${content.length} chars`);
+  if (usage) {
+    console.log(`[LLM] Tokens — prompt: ${usage.prompt_tokens}, completion: ${usage.completion_tokens}, total: ${usage.total_tokens}`);
+  }
+
+  return content;
 }
 
 export function extractJsonFromResponse(text: string): unknown | null {
   const trimmed = text.trim();
+  console.log(`[LLM] Parsing JSON from ${trimmed.length} chars`);
 
   // 1. Try direct parse
   try {
-    return JSON.parse(trimmed);
+    const result = JSON.parse(trimmed);
+    console.log(`[LLM] Direct JSON parse OK`);
+    return result;
   } catch {}
 
   // 2. Try extracting from ```json ... ``` code blocks
   const codeBlockMatch = trimmed.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/);
   if (codeBlockMatch) {
     try {
-      return JSON.parse(codeBlockMatch[1]);
+      const result = JSON.parse(codeBlockMatch[1]);
+      console.log(`[LLM] Extracted JSON from code block`);
+      return result;
     } catch {}
   }
 
@@ -61,12 +77,15 @@ export function extractJsonFromResponse(text: string): unknown | null {
         depth--;
         if (depth === 0) {
           try {
-            return JSON.parse(trimmed.slice(startIdx, i + 1));
+            const result = JSON.parse(trimmed.slice(startIdx, i + 1));
+            console.log(`[LLM] Extracted JSON via brace matching`);
+            return result;
           } catch { break; }
         }
       }
     }
   }
 
+  console.error(`[LLM] FAILED to parse JSON. First 200 chars: ${trimmed.slice(0, 200)}`);
   return null;
 }

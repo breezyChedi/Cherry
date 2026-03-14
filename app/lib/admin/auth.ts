@@ -6,13 +6,19 @@ const COOKIE_NAME = 'cherry_admin_session';
 const SESSION_TOKEN = 'cherry-admin-authenticated-2026';
 
 export function validateCredentials(username: string, password: string): boolean {
-  return username === ADMIN_USERNAME && password === ADMIN_PASSWORD;
+  const valid = username === ADMIN_USERNAME && password === ADMIN_PASSWORD;
+  console.log(`[AUTH] Login attempt user="${username}" — ${valid ? 'SUCCESS' : 'FAILED'}`);
+  return valid;
 }
 
 export async function isAuthenticated(): Promise<boolean> {
   const cookieStore = await cookies();
   const session = cookieStore.get(COOKIE_NAME);
-  return session?.value === SESSION_TOKEN;
+  const authed = session?.value === SESSION_TOKEN;
+  if (!authed) {
+    console.log(`[AUTH] Unauthenticated request — cookie ${session ? 'present but invalid' : 'missing'}`);
+  }
+  return authed;
 }
 
 export function getSessionCookie() {

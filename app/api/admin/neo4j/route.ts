@@ -12,10 +12,13 @@ export async function POST(req: NextRequest) {
     if (!statement) {
       return NextResponse.json({ error: 'Missing statement' }, { status: 400 });
     }
+    console.log(`[API /admin/neo4j] Proxy query: ${statement.trim().replace(/\s+/g, ' ').slice(0, 100)}...`);
     const result = await neo4jQuery(statement, parameters || {});
+    console.log(`[API /admin/neo4j] Query completed OK`);
     return NextResponse.json(result);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Neo4j query failed';
+    console.error(`[API /admin/neo4j] ERROR: ${message}`);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

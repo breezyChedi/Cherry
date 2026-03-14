@@ -7,6 +7,9 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  console.log(`[API /bursaries] GET — listing all bursaries`);
+  const start = Date.now();
+
   const result = await neo4jQuery(`
     MATCH (b:Bursary)
     RETURN b.id AS id, b.name AS name, b.funderName AS funder,
@@ -16,7 +19,9 @@ export async function GET() {
     ORDER BY b.name
   `);
 
-  return NextResponse.json(parseNeo4jResponse(result));
+  const rows = parseNeo4jResponse(result);
+  console.log(`[API /bursaries] GET OK — ${rows.length} bursaries in ${Date.now() - start}ms`);
+  return NextResponse.json(rows);
 }
 
 export async function POST(req: NextRequest) {
@@ -26,14 +31,17 @@ export async function POST(req: NextRequest) {
 
   try {
     const data = await req.json();
+    console.log(`[API /bursaries] POST — creating/updating bursary id="${data.id}", name="${data.name}"`);
+    const start = Date.now();
 
-    // Build scalar props from nested JSON
     const funder = typeof data.funder === 'string' ? JSON.parse(data.funder) : data.funder || {};
     const eligibility = typeof data.eligibility === 'string' ? JSON.parse(data.eligibility) : data.eligibility || {};
     const application = typeof data.application === 'string' ? JSON.parse(data.application) : data.application || {};
     const coverageInfo = typeof data.coverageInfo === 'string' ? JSON.parse(data.coverageInfo) : data.coverageInfo || {};
     const obligations = typeof data.obligations === 'string' ? JSON.parse(data.obligations) : data.obligations || {};
     const renewal = typeof data.renewal === 'string' ? JSON.parse(data.renewal) : data.renewal || {};
+
+    console.log(`[API /bursaries] POST — funder="${funder.name}", status="${application.status}", closingDate="${application.closingDate}"`);
 
     const params = {
       id: data.id,
@@ -71,9 +79,11 @@ export async function POST(req: NextRequest) {
       RETURN b.id AS id
     `, params);
 
+    console.log(`[API /bursaries] POST OK — MERGE complete for "${data.id}" in ${Date.now() - start}ms`);
     return NextResponse.json({ success: true, data: parseNeo4jResponse(result) });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Save failed';
+    console.error(`[API /bursaries] POST ERROR: ${message}`);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

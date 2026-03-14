@@ -8,13 +8,17 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params;
+  console.log(`[API /bursaries/${id}] GET — fetching bursary`);
+
   const result = await neo4jQuery('MATCH (b:Bursary { id: $id }) RETURN b', { id });
   const rows = parseNeo4jResponse(result);
 
   if (rows.length === 0) {
+    console.warn(`[API /bursaries/${id}] GET — NOT FOUND`);
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
+  console.log(`[API /bursaries/${id}] GET OK`);
   return NextResponse.json(rows[0].b || rows[0]);
 }
 
@@ -25,6 +29,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const { id } = await params;
   const data = await req.json();
+  console.log(`[API /bursaries/${id}] PUT — updating bursary name="${data.name}"`);
+  const start = Date.now();
 
   const funder = typeof data.funder === 'string' ? JSON.parse(data.funder) : data.funder || {};
   const eligibility = typeof data.eligibility === 'string' ? JSON.parse(data.eligibility) : data.eligibility || {};
@@ -62,6 +68,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     RETURN b.id AS id
   `, queryParams);
 
+  console.log(`[API /bursaries/${id}] PUT OK in ${Date.now() - start}ms`);
   return NextResponse.json({ success: true });
 }
 
@@ -71,9 +78,12 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   }
 
   const { id } = await params;
+  console.log(`[API /bursaries/${id}] DELETE — removing bursary`);
+
   const result = await neo4jQuery('MATCH (b:Bursary { id: $id }) DETACH DELETE b RETURN count(b) AS deleted', { id });
   const rows = parseNeo4jResponse(result);
   const deleted = rows[0]?.deleted || 0;
 
+  console.log(`[API /bursaries/${id}] DELETE OK — ${deleted} node(s) deleted`);
   return NextResponse.json({ success: true, deleted });
 }

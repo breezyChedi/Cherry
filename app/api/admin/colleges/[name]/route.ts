@@ -9,6 +9,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ nam
 
   const { name } = await params;
   const decodedName = decodeURIComponent(name);
+  console.log(`[API /colleges/${decodedName}] GET — fetching institution`);
+  const start = Date.now();
 
   // Get institution
   const instResult = await neo4jQuery(`
@@ -18,6 +20,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ nam
 
   const instRows = parseNeo4jResponse(instResult);
   if (instRows.length === 0) {
+    console.warn(`[API /colleges/${decodedName}] GET — NOT FOUND`);
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
@@ -34,6 +37,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ nam
     qualifications: (row.qualifications as unknown[]) || [],
   }));
 
+  console.log(`[API /colleges/${decodedName}] GET OK — ${departments.length} department(s) in ${Date.now() - start}ms`);
   return NextResponse.json({
     institution: instRows[0].u || instRows[0],
     nodeId: instRows[0].nodeId,
@@ -48,22 +52,28 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   const { name } = await params;
   const decodedName = decodeURIComponent(name);
+  console.log(`[API /colleges/${decodedName}] DELETE — cascading delete`);
+  const start = Date.now();
 
   // Cascading delete: degrees → faculties → university
+  console.log(`[API /colleges/${decodedName}] DELETE — removing degrees`);
   await neo4jQuery(`
     MATCH (u:University { name: $name })-[:HAS_FACULTY]->(f)-[:HAS_DEGREE]->(d:Degree)
     DETACH DELETE d
   `, { name: decodedName });
 
+  console.log(`[API /colleges/${decodedName}] DELETE — removing faculties`);
   await neo4jQuery(`
     MATCH (u:University { name: $name })-[:HAS_FACULTY]->(f:Faculty)
     DETACH DELETE f
   `, { name: decodedName });
 
+  console.log(`[API /colleges/${decodedName}] DELETE — removing university node`);
   await neo4jQuery(`
     MATCH (u:University { name: $name })
     DETACH DELETE u
   `, { name: decodedName });
 
+  console.log(`[API /colleges/${decodedName}] DELETE OK in ${Date.now() - start}ms`);
   return NextResponse.json({ success: true });
 }
