@@ -87,6 +87,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     setValue(pathname);
   }, [pathname]);
 
+  // Admin panel has its own layout — pass through children only
+  if (pathname?.startsWith('/admin')) {
+    return <>{children}</>;
+  }
+
   // If we are on the home page (or /home1 fallback), render a clean layout without the app shell
   if (pathname === '/' || pathname?.startsWith('/home1')) {
     return (
