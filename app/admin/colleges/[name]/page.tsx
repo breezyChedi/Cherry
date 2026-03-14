@@ -504,13 +504,13 @@ export default function CollegeEditPage({ params }: { params: Promise<{ name: st
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !photoLabel.trim()) return;
+    if (!file) return;
     setUploadingPhoto(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('institutionName', name);
     formData.append('slug', name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''));
-    formData.append('label', photoLabel.trim());
+    if (photoLabel.trim()) formData.append('label', photoLabel.trim());
     if (photoCampus) formData.append('campus', photoCampus);
     try {
       const res = await fetch('/api/admin/upload/campus-photo', { method: 'POST', body: formData, credentials: 'include' });
@@ -712,7 +712,7 @@ export default function CollegeEditPage({ params }: { params: Promise<{ name: st
             <h5 style={{ margin: '0 0 8px', fontSize: 13, color: '#94a3b8' }}>Add Photo</h5>
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8, marginBottom: 8 }}>
               <input style={inputStyle} value={photoLabel} onChange={e => setPhotoLabel(e.target.value)}
-                placeholder="Label (required) — e.g. Parktown Campus" />
+                placeholder="Label (optional) — e.g. Parktown Campus" />
               <select style={inputStyle} value={photoCampus} onChange={e => setPhotoCampus(e.target.value)}>
                 <option value="">Campus (optional)</option>
                 {campusNames.map(c => <option key={c} value={c}>{c}</option>)}
@@ -721,15 +721,12 @@ export default function CollegeEditPage({ params }: { params: Promise<{ name: st
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <label style={{
                 display: 'inline-block', padding: '6px 14px', borderRadius: 6, fontSize: 12,
-                background: photoLabel.trim() ? '#2563eb' : '#334155',
-                color: photoLabel.trim() ? 'white' : '#64748b',
-                cursor: photoLabel.trim() ? 'pointer' : 'not-allowed',
+                background: '#2563eb', color: 'white', cursor: uploadingPhoto ? 'not-allowed' : 'pointer',
               }}>
                 {uploadingPhoto ? 'Uploading...' : 'Choose & Upload Photo'}
                 <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handlePhotoUpload}
-                  disabled={!photoLabel.trim() || uploadingPhoto} style={{ display: 'none' }} />
+                  disabled={uploadingPhoto} style={{ display: 'none' }} />
               </label>
-              {!photoLabel.trim() && <span style={{ color: '#f59e0b', fontSize: 11 }}>Enter a descriptive label first</span>}
             </div>
           </div>
         </div>

@@ -52,9 +52,9 @@ export async function POST(req: NextRequest) {
     const label = formData.get('label') as string;
     const campus = formData.get('campus') as string | null;
 
-    if (!file || !institutionName || !slug || !label) {
+    if (!file || !institutionName || !slug) {
       console.warn(`[API /upload/campus-photo] POST — missing required fields`);
-      return NextResponse.json({ error: 'file, institutionName, slug, and label required' }, { status: 400 });
+      return NextResponse.json({ error: 'file, institutionName, and slug required' }, { status: 400 });
     }
 
     if (file.size > 4.5 * 1024 * 1024) {
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
     const photoEntry: PhotoEntry = {
       id: `${slug}-photo-${photos.length + 1}`,
       url: photoUrl,
-      label,
+      label: label || '',
       ...(campus ? { campus } : {}),
     };
     photos.push(photoEntry);
