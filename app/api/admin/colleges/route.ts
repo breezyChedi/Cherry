@@ -35,10 +35,11 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
     const inst = data.institution || data;
-    console.log(`[API /colleges] POST — creating/updating institution name="${inst.name}", isCollege=${inst.isCollege !== false}`);
+    const existingNodeId = data.nodeId ? String(data.nodeId) : null;
+    console.log(`[API /colleges] POST — saving institution name="${inst.name}", nodeId=${existingNodeId}, isCollege=${inst.isCollege !== false}`);
     const start = Date.now();
 
-    // Upsert institution node
+    // Build SET properties
     const instParams = {
       name: inst.name,
       shortName: inst.shortName || null,
@@ -67,10 +68,7 @@ export async function POST(req: NextRequest) {
       campusesJson: JSON.stringify(inst.campuses || []),
     };
 
-    console.log(`[API /colleges] POST — MERGE institution node`);
-    await neo4jQuery(`
-      MERGE (u:University { name: $name })
-      SET u.isCollege = $isCollege, u.shortName = $shortName, u.location = $location,
+    const setClause = `SET u.name = $name, u.isCollege = $isCollege, u.shortName = $shortName, u.location = $location,
           u.logoUrl = $logoUrl, u.campusImageUrl = $campusImageUrl,
           u.websiteUrl = $websiteUrl, u.description = $description,
           u.ranking = $ranking, u.applicationDeadline = $applicationDeadline,
@@ -82,32 +80,51 @@ export async function POST(req: NextRequest) {
           u.accommodationAvailable = $accommodationAvailable,
           u.passRate = $passRate, u.facilities = $facilities,
           u.studentSupport = $studentSupport, u.industryPartnerships = $industryPartnerships,
-          u.registrationsJson = $registrationsJson, u.campusesJson = $campusesJson
-      RETURN id(u) AS uid
-    `, instParams);
+          u.registrationsJson = $registrationsJson, u.campusesJson = $campusesJson`;
 
-    // Handle departments and qualifications
+    if (existingNodeId) {
+      // UPDATE existing node by internal ID — allows name changes
+      console.log(`[API /colleges] POST — updating existing node id=${existingNodeId}`);
+      const updateResult = await neo4jQuery(
+        `MATCH (u:University) WHERE id(u) = $nodeId ${setClause} RETURN id(u) AS uid`,
+        { ...instParams, nodeId: parseInt(existingNodeId) }
+      );
+      const updateRows = parseNeo4jResponse(updateResult);
+      if (updateRows.length === 0) {
+        return NextResponse.json({ error: `Node ${existingNodeId} not found` }, { status: 404 });
+      }
+    } else {
+      // CREATE new institution via MERGE
+      console.log(`[API /colleges] POST — creating new institution node`);
+      await neo4jQuery(
+        `MERGE (u:University { name: $name }) ${setClause} RETURN id(u) AS uid`,
+        instParams
+      );
+    }
+
+    // Handle departments and qualifications — always match by node ID if available
     const departments = data.departments || [];
     if (departments.length > 0) {
-      console.log(`[API /colleges] POST — clearing existing faculties/degrees for "${inst.name}"`);
-      // Clear existing faculties/degrees first
-      await neo4jQuery(`
-        MATCH (u:University { name: $name })-[:HAS_FACULTY]->(f:Faculty)-[:HAS_DEGREE]->(d:Degree)
-        DETACH DELETE d
-      `, { name: inst.name });
-      await neo4jQuery(`
-        MATCH (u:University { name: $name })-[:HAS_FACULTY]->(f:Faculty)
-        DETACH DELETE f
-      `, { name: inst.name });
+      const matchClause = existingNodeId
+        ? `MATCH (u:University) WHERE id(u) = ${parseInt(existingNodeId)}`
+        : `MATCH (u:University { name: $uniName })`;
 
-      // Create new departments and qualifications
+      console.log(`[API /colleges] POST — clearing existing faculties/degrees for "${inst.name}"`);
+      await neo4jQuery(
+        `${matchClause}-[:HAS_FACULTY]->(f:Faculty)-[:HAS_DEGREE]->(d:Degree) DETACH DELETE d`,
+        existingNodeId ? {} : { uniName: inst.name }
+      );
+      await neo4jQuery(
+        `${matchClause}-[:HAS_FACULTY]->(f:Faculty) DETACH DELETE f`,
+        existingNodeId ? {} : { uniName: inst.name }
+      );
+
       console.log(`[API /colleges] POST — creating ${departments.length} department(s)`);
       for (const dept of departments) {
-        await neo4jQuery(`
-          MATCH (u:University { name: $uniName })
-          CREATE (u)-[:HAS_FACULTY]->(f:Faculty { name: $deptName })
-          RETURN f
-        `, { uniName: inst.name, deptName: dept.name });
+        await neo4jQuery(
+          `${matchClause} CREATE (u)-[:HAS_FACULTY]->(f:Faculty { name: $deptName }) RETURN f`,
+          { ...(existingNodeId ? {} : { uniName: inst.name }), deptName: dept.name }
+        );
 
         const quals = dept.qualifications || [];
         if (quals.length > 0) {
@@ -115,7 +132,7 @@ export async function POST(req: NextRequest) {
         }
         for (const qual of quals) {
           await neo4jQuery(`
-            MATCH (u:University { name: $uniName })-[:HAS_FACULTY]->(f:Faculty { name: $deptName })
+            ${matchClause}-[:HAS_FACULTY]->(f:Faculty { name: $deptName })
             CREATE (f)-[:HAS_DEGREE]->(d:Degree {
               id: $id, name: $qName, shortName: $shortName, code: $code, description: $description,
               level: $level, qualificationType: $qualificationType,
@@ -128,7 +145,7 @@ export async function POST(req: NextRequest) {
             })
             RETURN d
           `, {
-            uniName: inst.name,
+            ...(existingNodeId ? {} : { uniName: inst.name }),
             deptName: dept.name,
             id: qual.id || '',
             qName: qual.name || '',

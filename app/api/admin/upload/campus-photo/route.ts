@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/app/lib/admin/auth';
-import { uploadToGCS, downloadFromGCS, uploadJsonToGCS, PUBLIC_BASE } from '@/app/lib/admin/gcs';
+import { uploadToGCS, uploadJsonToGCS, PUBLIC_BASE } from '@/app/lib/admin/gcs';
 import { neo4jQuery, parseNeo4jResponse } from '@/app/lib/admin/neo4j-http';
 
 const MANIFEST_PATH = 'campus_photos/campus_photos_index.json';
+const MANIFEST_URL = `${PUBLIC_BASE}/${MANIFEST_PATH}`;
 
 type PhotoEntry = { id: string; url: string; label: string; campus?: string };
 type InstitutionEntry = { slug: string; name: string; photos: PhotoEntry[] };
@@ -16,8 +17,10 @@ type Manifest = {
 
 async function loadManifest(): Promise<Manifest> {
   try {
-    const text = await downloadFromGCS(MANIFEST_PATH);
-    const parsed = JSON.parse(text);
+    // Fetch via public URL — no GCS auth needed for reading
+    const res = await fetch(`${MANIFEST_URL}?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const parsed = await res.json();
     console.log(`[API /upload/campus-photo] Manifest loaded — ${Object.keys(parsed.institutions || {}).length} institution(s)`);
     return parsed;
   } catch {

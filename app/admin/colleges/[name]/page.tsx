@@ -450,7 +450,7 @@ export default function CollegeEditPage({ params }: { params: Promise<{ name: st
     setSaving(true);
     setMessage('');
     try {
-      const payload = { institution: { ...data, isCollege: data.isCollege !== false }, departments };
+      const payload = { institution: { ...data, isCollege: data.isCollege !== false }, departments, nodeId };
       const res = await fetch('/api/admin/colleges', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload), credentials: 'include',
@@ -531,13 +531,18 @@ export default function CollegeEditPage({ params }: { params: Promise<{ name: st
       const res = await fetch('/api/admin/upload/campus-photo', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ institutionName: name, photoId }),
+        body: JSON.stringify({ institutionName: data?.name || name, photoId }),
         credentials: 'include',
       });
+      const result = await res.json();
       if (res.ok) {
         setGalleryPhotos(prev => prev.filter(p => p.id !== photoId));
+      } else {
+        alert(`Delete failed: ${result.error || res.statusText}`);
       }
-    } catch { /* skip */ }
+    } catch (err) {
+      alert(`Delete failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
   };
 
   if (loading) return <div style={{ padding: 40, color: '#64748b' }}>Loading...</div>;
