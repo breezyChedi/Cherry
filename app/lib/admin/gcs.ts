@@ -29,7 +29,8 @@ const PUBLIC_BASE = `https://storage.googleapis.com/${BUCKET_NAME}`;
 export async function uploadToGCS(
   buffer: Buffer,
   destination: string,
-  contentType: string
+  contentType: string,
+  cacheControl: string = 'public, max-age=3600'
 ): Promise<string> {
   console.log(`[GCS] Uploading ${buffer.length} bytes → ${destination} (${contentType})`);
   const start = Date.now();
@@ -40,7 +41,7 @@ export async function uploadToGCS(
   await blob.save(buffer, {
     contentType,
     resumable: false,
-    metadata: { cacheControl: 'public, max-age=3600' },
+    metadata: { cacheControl },
   });
 
   await blob.makePublic();

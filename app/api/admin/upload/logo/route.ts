@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     // Force .png extension since we converted
     const safeName = filename.replace(/\.(jpg|jpeg|webp|svg|png)$/i, '.png');
     const destination = `logos/${safeName}`;
-    const url = await uploadToGCS(processed, destination, 'image/png');
+    const url = await uploadToGCS(processed, destination, 'image/png', 'no-cache');
 
     console.log(`[API /upload/logo] POST OK — uploaded to "${destination}" in ${Date.now() - start}ms`);
     return NextResponse.json({
