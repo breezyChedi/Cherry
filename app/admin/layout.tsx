@@ -77,6 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/bursaries/new', label: 'New Bursary', icon: '➕' },
     { href: '/admin/colleges', label: 'Colleges', icon: '🏫' },
     { href: '/admin/colleges/new', label: 'New College', icon: '➕' },
+    { href: '/admin/rows', label: 'Explore Rows', icon: '📋' },
   ];
 
   return (
